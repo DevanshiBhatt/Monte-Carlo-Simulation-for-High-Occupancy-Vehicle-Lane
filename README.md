@@ -41,6 +41,7 @@ This is a basic summary of what we plan to analyze through our findings (subject
 - Is there a potential pressure to convert under performing HOV lanes to general-purpose use?
 
 ## Instructions on how to use the program:
+Make sure you are using Python 3.6 and above.
 Download and run the python file.
 There will be a prompt to enter the total distance (in miles) of the HOV lane. 
 
