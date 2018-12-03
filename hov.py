@@ -106,6 +106,19 @@ class Lanes:
 
         return df
 
+    def fn_vehicles(self, df):
+        hov_list = []
+        sov_list = []
+        for i in df['weather']:
+            hov_vehicles = round(np.median(self.rand_gen_WinterRains(2000, 1740, 1600, samples=10)), 0)
+            sov_vehicles = round(np.median(self.rand_gen_WinterRains(300, 200, 150, samples=10)), 0)
+            hov_list.append(hov_vehicles)
+            sov_list.append(sov_vehicles)
+        df['hov'] = pd.DataFrame(hov_list)
+        df['sov'] = pd.DataFrame(sov_list)
+
+        return df
+
     #
     # def random_gen(self):
     #     random_dict = {}
@@ -183,12 +196,14 @@ class Lanes:
 
 if __name__ == '__main__':
     #k = input('Enter the number of simulations: ')
-    df = pd.DataFrame(columns=['weather', 'weather_int', 'accident', 'accident_int', 'speed'])
+    df = pd.DataFrame(columns=['hov', 'sov', 'weather', 'weather_int', 'accident', 'accident_int', 'speed'])
     my_lane = Lanes()
+    #df = my_lane.fn_vehicles(df)
     weather_int_list = my_lane.fn_weather_int()
     print(weather_int_list)
     accident_int_list = my_lane.fn_accident_int()
     print(accident_int_list)
     df = my_lane.compute_AvgSpeed(df)
+    df = my_lane.fn_vehicles(df)
     print(df)
     df.to_csv('HOV.csv')
