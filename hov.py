@@ -107,15 +107,33 @@ class Lanes:
         return df
 
     def fn_vehicles(self, df):
+        df['peak_hour'] = choices(['Yes', 'No'], [0.5, 0.5], k=100)
+
         hov_list = []
         sov_list = []
-        for i in df['weather']:
-            hov_vehicles = round(np.median(self.rand_gen_WinterRains(2000, 1740, 1600, samples=10)), 0)
-            sov_vehicles = round(np.median(self.rand_gen_WinterRains(300, 200, 150, samples=10)), 0)
+        fuel_eff_list = []
+        fuel_eff_reg_list = []
+        fuel_eff_non_reg_list = []
+        for i in df['peak_hour']:
+            if i == 'Yes':
+                hov_vehicles = round(np.median(self.rand_gen_WinterRains(2000, 1740, 1600, samples=10)), 0)
+                sov_vehicles = round(np.median(self.rand_gen_WinterRains(300, 200, 150, samples=10)), 0)
+            else:
+                hov_vehicles = round(np.median(self.rand_gen_WinterRains(1800, 1540, 1400, samples=10)), 0)
+                sov_vehicles = round(np.median(self.rand_gen_WinterRains(200, 100, 50, samples=10)), 0)
+            fuel_eff_vehicles = 0.2 * sov_vehicles
+            reg_fuel_eff = 0.7 * fuel_eff_vehicles
+            non_reg_fuel_eff = 0.3 * fuel_eff_vehicles
             hov_list.append(hov_vehicles)
             sov_list.append(sov_vehicles)
+            fuel_eff_list.append(round(fuel_eff_vehicles,0))
+            fuel_eff_reg_list.append(round(reg_fuel_eff,0))
+            fuel_eff_non_reg_list.append(round(non_reg_fuel_eff,0))
         df['hov'] = pd.DataFrame(hov_list)
         df['sov'] = pd.DataFrame(sov_list)
+        df['fuel_efficient_cars'] = pd.DataFrame(fuel_eff_list)
+        df['reg_fuel_eff'] = pd.DataFrame(fuel_eff_reg_list)
+        df['non_reg_fuel_eff'] = pd.DataFrame(fuel_eff_non_reg_list)
 
         return df
 
@@ -196,13 +214,13 @@ class Lanes:
 
 if __name__ == '__main__':
     #k = input('Enter the number of simulations: ')
-    df = pd.DataFrame(columns=['hov', 'sov', 'weather', 'weather_int', 'accident', 'accident_int', 'speed'])
+    df = pd.DataFrame(columns=['peak_hour', 'hov', 'sov', 'fuel_efficient_cars', 'reg_fuel_eff', 'non_reg_fuel_eff', 'weather', 'weather_int', 'accident', 'accident_int', 'speed'])
     my_lane = Lanes()
     #df = my_lane.fn_vehicles(df)
     weather_int_list = my_lane.fn_weather_int()
-    print(weather_int_list)
+    #print(weather_int_list)
     accident_int_list = my_lane.fn_accident_int()
-    print(accident_int_list)
+    #print(accident_int_list)
     df = my_lane.compute_AvgSpeed(df)
     df = my_lane.fn_vehicles(df)
     print(df)
