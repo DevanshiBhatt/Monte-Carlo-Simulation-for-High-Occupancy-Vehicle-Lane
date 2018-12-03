@@ -12,10 +12,6 @@ import pandas as pd
 from numpy import random
 #import matplotlib.pyplot as plt
 
-
-distance=400
-
-
 class Lanes:
 
     def init(self):
@@ -54,7 +50,6 @@ class Lanes:
 
     def fn_weather_int(self):
         df['weather'] = choices(['Summer', 'Winter', 'Rains'], [0.5, 0.3, 0.2], k=100)
-        #print(y)
         weather_int_list=[]
 
         for season in df['weather']:
@@ -73,7 +68,6 @@ class Lanes:
 
     def fn_accident_int(self):
         df['accident'] = choices(['Yes', 'No'], [0.4, 0.6], k=100)
-        #print(y)
         accident_int_list = []
 
         for value in df['accident']:
@@ -134,6 +128,11 @@ class Lanes:
         df['fuel_efficient_cars'] = pd.DataFrame(fuel_eff_list)
         df['reg_fuel_eff'] = pd.DataFrame(fuel_eff_reg_list)
         df['non_reg_fuel_eff'] = pd.DataFrame(fuel_eff_non_reg_list)
+
+        return df
+
+    def fn_fine(self, df):
+        df['fine'] = (df['sov'] - df['reg_fuel_eff']) * 450 * 4
 
         return df
 
@@ -214,7 +213,8 @@ class Lanes:
 
 if __name__ == '__main__':
     #k = input('Enter the number of simulations: ')
-    df = pd.DataFrame(columns=['peak_hour', 'hov', 'sov', 'fuel_efficient_cars', 'reg_fuel_eff', 'non_reg_fuel_eff', 'weather', 'weather_int', 'accident', 'accident_int', 'speed'])
+    df = pd.DataFrame(columns=['peak_hour', 'hov', 'sov', 'fuel_efficient_cars', 'reg_fuel_eff', 'non_reg_fuel_eff',
+                               'weather', 'weather_int', 'accident', 'accident_int', 'speed', 'fine', 'accident_fine'])
     my_lane = Lanes()
     #df = my_lane.fn_vehicles(df)
     weather_int_list = my_lane.fn_weather_int()
@@ -223,5 +223,6 @@ if __name__ == '__main__':
     #print(accident_int_list)
     df = my_lane.compute_AvgSpeed(df)
     df = my_lane.fn_vehicles(df)
+    df = my_lane.fn_fine(df)
     print(df)
     df.to_csv('HOV.csv')
