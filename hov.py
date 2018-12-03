@@ -19,16 +19,15 @@ distance=400
 class Lanes:
 
     def init(self):
-        self.num_sov=0
-        self.num_hov=0
+        self.num_sov = 0
+        self.num_hov = 0
         self.weather=''
         self.weather_int=0
         self.accident=''
         self.accident_intensity=int
         #self.k=k
 
-
-    def rand_gen_WinterRains(self ,low, likely, high, confidence=4, samples=10):
+    def rand_gen_WinterRains(self,low, likely, high, confidence=4, samples=10):
         """Produce random numbers according to the 'Modified PERT'
         distribution.
 
@@ -53,7 +52,6 @@ class Lanes:
         weather_int = weather_int * (high - low) + low
         return weather_int
 
-
     def fn_weather_int(self):
         df['weather'] = choices(['Summer', 'Winter', 'Rains'], [0.5, 0.3, 0.2], k=100)
         #print(y)
@@ -64,15 +62,14 @@ class Lanes:
                 weather_int=0
 
             elif season == 'Winter':
-                weather_int= np.median(self.rand_gen_WinterRains(10, 4, 2 , samples=10))
+                weather_int= np.median(self.rand_gen_WinterRains(10, 4, 2, samples=10))
 
             else:
-                weather_int= np.median(self.rand_gen_WinterRains(10, 5, 2 , samples=10))
+                weather_int= np.median(self.rand_gen_WinterRains(10, 5, 2, samples=10))
             weather_int_list.append(round(weather_int, 2))
             df['weather_int'] = pd.DataFrame(weather_int_list)
 
         return weather_int_list
-
 
     def fn_accident_int(self):
         df['accident'] = choices(['Yes', 'No'], [0.4, 0.6], k=100)
@@ -88,6 +85,26 @@ class Lanes:
             df['accident_int'] = pd.DataFrame(accident_int_list)
 
         return accident_int_list
+
+    def compute_AvgSpeed(self, df):
+        speed_list = []
+        time_list = []
+        #for i in random_dict.keys():
+
+        #df['speed'] = np.where(df['accident_int'] in range(7, 11),'yes','no')
+
+        #indiv[(indiv['CITY'] == 'CHAMPAIGN') & (indiv['STATE'] == 'IL')]
+
+        #print(df[(df['weather'] == 'Winter') & (df['weather_int'] >5)])
+
+        #print(df[df.weather == 'Winter'])
+        #print(type(df['accident_int']))
+
+        df['speed'] = np.where(((df['weather'] == 'Winter') & (df['weather_int'] > 3) & (df['accident_int'] > 3)) |
+                               ((df['weather'] == 'Rains') & (df['weather_int'] > 3) & (df['accident_int'] > 3)),
+                               (df['accident_int'] * df['weather_int']) / 2, randint(25, 30))
+
+        return df
 
     #
     # def random_gen(self):
@@ -168,14 +185,10 @@ if __name__ == '__main__':
     #k = input('Enter the number of simulations: ')
     df = pd.DataFrame(columns=['weather', 'weather_int', 'accident', 'accident_int', 'speed'])
     my_lane = Lanes()
-    weather_int_list=my_lane.fn_weather_int()
+    weather_int_list = my_lane.fn_weather_int()
     print(weather_int_list)
     accident_int_list = my_lane.fn_accident_int()
     print(accident_int_list)
+    df = my_lane.compute_AvgSpeed(df)
+    print(df)
     df.to_csv('HOV.csv')
-    #print(df)
-
-#print(random_dict)
-#compute_AvgSpeed(random_dict)
-#print()
-#compute_time()
