@@ -1,6 +1,8 @@
 """
 Simulating the probability of the estimated fines on the I-880 freeway
 that the single occupancy vehicles will have to pay.
+sov ~ single occupancy vehicle
+hov ~ high occupancy vehicle
 """
 
 from random import choice, randint, choices
@@ -21,7 +23,7 @@ class Lanes:
         self.weather_int=0
         self.accident=''
         self.accident_intensity=int
-        #self.k=k
+        #self.k=100
 
     def rand_gen_WinterRains(self,low, likely, high, confidence=4, samples=10):
         """Produce random numbers according to the 'Modified PERT'
@@ -90,12 +92,7 @@ class Lanes:
 
     def fn_vehicles(self, df):
         df['peak_hour'] = choices(['Yes', 'No'], [0.5, 0.5], k=100)
-
-        hov_list = []
-        sov_list = []
-        fuel_eff_list = []
-        fuel_eff_reg_list = []
-        fuel_eff_non_reg_list = []
+        hov_list, sov_list, fuel_eff_list, fuel_eff_reg_list, fuel_eff_non_reg_list = ([] for i in range(5))
         for i in df['peak_hour']:
             if i == 'Yes':
                 hov_vehicles = round(np.median(self.rand_gen_WinterRains(2000, 1740, 1600, samples=10)), 0)
@@ -120,6 +117,7 @@ class Lanes:
         return df
 
     def fn_fine(self, df):
+        # to calculate the estimated fine sov have to pay
         df['estimate_fine'] = (df['sov'] - df['reg_fuel_eff']) * 450 * 4
 
         return df
@@ -128,7 +126,7 @@ class Lanes:
         df['camera_functional'] = choices(['Yes', 'No'], [0.8, 0.2], k=100)
 
         df['actual_fine'] = np.where(df['camera_functional'] == 'Yes', (0.8 * (df['sov'] - df['reg_fuel_eff']) * 450 * 4),
-                                     (0.2 * (df['sov'] - df['reg_fuel_eff']) * 450 * 4))
+                                     0)
         return df
 
 if __name__ == '__main__':
@@ -137,7 +135,6 @@ if __name__ == '__main__':
                                'weather', 'weather_int', 'accident', 'accident_int', 'speed', 'estimate_fine',
                                'actual_fine', 'accident_fine'])
     my_lane = Lanes()
-    #df = my_lane.fn_vehicles(df)
     weather_int_list = my_lane.fn_weather_int()
     #print(weather_int_list)
     accident_int_list = my_lane.fn_accident_int()
@@ -148,5 +145,8 @@ if __name__ == '__main__':
     df = my_lane.fn_camera_functional(df)
     print(df)
     df.to_csv('HOV.csv')
-    hist1 = df.hist(column='estimate_fine', bins=500)
+    hist1 = df.hist(column='estimate_fine', bins=1000)
+    plt.show()
+    hist1 = df.hist(column='actual_fine', bins=1000)
+
     plt.show()
