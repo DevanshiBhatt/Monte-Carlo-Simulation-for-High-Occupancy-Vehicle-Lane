@@ -10,7 +10,7 @@ import typing
 import numpy as np
 import pandas as pd
 from numpy import random
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
 class Lanes:
 
@@ -81,18 +81,6 @@ class Lanes:
         return accident_int_list
 
     def compute_AvgSpeed(self, df):
-        speed_list = []
-        time_list = []
-        #for i in random_dict.keys():
-
-        #df['speed'] = np.where(df['accident_int'] in range(7, 11),'yes','no')
-
-        #indiv[(indiv['CITY'] == 'CHAMPAIGN') & (indiv['STATE'] == 'IL')]
-
-        #print(df[(df['weather'] == 'Winter') & (df['weather_int'] >5)])
-
-        #print(df[df.weather == 'Winter'])
-        #print(type(df['accident_int']))
 
         df['speed'] = np.where(((df['weather'] == 'Winter') & (df['weather_int'] > 3) & (df['accident_int'] > 3)) |
                                ((df['weather'] == 'Rains') & (df['weather_int'] > 3) & (df['accident_int'] > 3)),
@@ -132,89 +120,22 @@ class Lanes:
         return df
 
     def fn_fine(self, df):
-        df['fine'] = (df['sov'] - df['reg_fuel_eff']) * 450 * 4
+        df['estimate_fine'] = (df['sov'] - df['reg_fuel_eff']) * 450 * 4
 
         return df
 
-    #
-    # def random_gen(self):
-    #     random_dict = {}
-    #     for i in range(10):
-    #         self.num_sov = randint(0, 300)
-    #         #print('Number of single occupant vehicles per hour: ', num_sov)
-    #
-    #         self.num_hov = randint(1500, 1800)
-    #         #print('Number of high occupant vehicles per hour: ', num_hov)
-    #
-    #         self.accident = choice([True, False])        #unpredictable variable
-    #         if self.accident == True:
-    #             self.accident_intensity = randint(1, 10)
-    #         else:
-    #             self.accident_intensity = 0
-    #         #print('intensity of an accident occurred: ',accident_intensity)
-    #
-    #         self.weather = choice(['Summer', 'Winter', 'Rains'])
-    #         if self.weather == 'Winter' or self.weather== 'Rains':
-    #             self.weather_int = randint(1,10)
-    #         else:
-    #             self.weather_int = 0
-    #         #print('Season:' , weather, ', Weather intensity: ', weather_int)
-    #
-    #
-    #         random_dict[i]=[]
-    #         # random_dict[key].append(num_sov)
-    #         # random_dict[key].append(num_hov)
-    #         # random_dict[key].append(accident_intensity)
-    #         # random_dict[key].append(weather)
-    #         # random_dict[key].append(weather_int)
-    #         random_dict[i] = [self.num_sov, self.num_hov, self.accident_intensity, self.weather, self.weather_int]
-    #         print(self.compute_AvgSpeed())
-    #         p = plt.hist(self.mod_pert_random(self, 10, 4, 2, confidence=4, samples=10000),
-    #                      bins=500,
-    #                      density=False)
-    #         #plt.show()
-    #         #print(self.mod_pert_random(10, 4, 2, 4, samples=10000))
-    #         #print(speed)
-    #     return random_dict
-    #
-    #
-    # def compute_AvgSpeed(self) -> int:
-    #     speed_list = []
-    #     time_list = []
-    #     #for i in random_dict.keys():
-    #
-    #     if self.weather == 'Winter':
-    #         if self.accident_intensity in range(7, 11) and self.weather_int in range(7, 11):
-    #             speed = (self.accident_intensity + self.weather_int) / 2
-    #             time = distance/speed
-    #         else:
-    #             speed = randint(25, 30)
-    #             time = distance/speed
-    #
-    #     elif self.weather == 'Rains':
-    #         if self.accident_intensity in range(7, 11) and self.weather_int in range(7, 11):
-    #             speed = (self.accident_intensity * self.weather_int) / 7
-    #             time = distance/speed
-    #         else:
-    #             speed = randint(25, 30)
-    #             time = distance/speed
-    #     else:
-    #         if self.accident_intensity in range(7, 11) and self.weather_int in range(7, 11):
-    #             speed = (self.accident_intensity * self.weather_int) / 5
-    #             time = distance/speed
-    #         else:
-    #             speed = randint(25, 30)
-    #             time = distance/speed
-    #
-    #     speed_list.append(speed)
-    #     time_list.append(round(time,2))
-    #     return speed, time
-    #
+    def fn_camera_functional(self, df):
+        df['camera_functional'] = choices(['Yes', 'No'], [0.8, 0.2], k=100)
+
+        df['actual_fine'] = np.where(df['camera_functional'] == 'Yes', (0.8 * (df['sov'] - df['reg_fuel_eff']) * 450 * 4),
+                                     (0.2 * (df['sov'] - df['reg_fuel_eff']) * 450 * 4))
+        return df
 
 if __name__ == '__main__':
     #k = input('Enter the number of simulations: ')
     df = pd.DataFrame(columns=['peak_hour', 'hov', 'sov', 'fuel_efficient_cars', 'reg_fuel_eff', 'non_reg_fuel_eff',
-                               'weather', 'weather_int', 'accident', 'accident_int', 'speed', 'fine', 'accident_fine'])
+                               'weather', 'weather_int', 'accident', 'accident_int', 'speed', 'estimate_fine',
+                               'actual_fine', 'accident_fine'])
     my_lane = Lanes()
     #df = my_lane.fn_vehicles(df)
     weather_int_list = my_lane.fn_weather_int()
@@ -224,5 +145,8 @@ if __name__ == '__main__':
     df = my_lane.compute_AvgSpeed(df)
     df = my_lane.fn_vehicles(df)
     df = my_lane.fn_fine(df)
+    df = my_lane.fn_camera_functional(df)
     print(df)
     df.to_csv('HOV.csv')
+    hist1 = df.hist(column='estimate_fine', bins=500)
+    plt.show()
