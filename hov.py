@@ -103,54 +103,56 @@ class Lanes:
             else:
                 hov_vehicles = round(np.median(self.rand_gen_WinterRains(1800, 1540, 1400, samples=10)), 0)
                 sov_vehicles = round(np.median(self.rand_gen_WinterRains(200, 100, 50, samples=10)), 0)
+
             fuel_eff_vehicles = 0.2 * sov_vehicles
             reg_fuel_eff = 0.7 * fuel_eff_vehicles
-            non_reg_fuel_eff = 0.3 * fuel_eff_vehicles
+            #non_reg_fuel_eff = 0.3 * fuel_eff_vehicles
             hov_list.append(hov_vehicles)
             sov_list.append(sov_vehicles)
             fuel_eff_list.append(round(fuel_eff_vehicles,0))
             fuel_eff_reg_list.append(round(reg_fuel_eff,0))
-            fuel_eff_non_reg_list.append(round(non_reg_fuel_eff,0))
+            #fuel_eff_non_reg_list.append(round(non_reg_fuel_eff,0))
         df['hov'] = pd.DataFrame(hov_list)
         df['sov'] = pd.DataFrame(sov_list)
-        df['fuel_efficient_cars'] = pd.DataFrame(fuel_eff_list)
+        df['fuel_efficient_sov'] = pd.DataFrame(fuel_eff_list)
         df['reg_fuel_eff'] = pd.DataFrame(fuel_eff_reg_list)
-        df['non_reg_fuel_eff'] = pd.DataFrame(fuel_eff_non_reg_list)
+        #df['non_reg_fuel_eff'] = pd.DataFrame(fuel_eff_non_reg_list)
 
         return df
 
     def fn_fine(self, df):
         # to calculate the estimated fine sov have to pay
         df['estimate_fine'] = (df['sov'] - df['reg_fuel_eff']) * 450 * 4
-
         return df
 
     def fn_camera_functional(self, df, no_of_samples):
         p=no_of_samples
         df['camera_functional'] = choices(['Yes', 'No'], [0.8, 0.2], k=p)
-
         df['actual_fine'] = np.where(df['camera_functional'] == 'Yes', (0.8 * (df['sov'] - df['reg_fuel_eff']) * 450 * 4),
                                      0)
         return df
 
+
 if __name__ == '__main__':
     no_of_samples = int(input('Enter the number of simulations: '))
-    df = pd.DataFrame(columns=['peak_hour', 'hov', 'sov', 'fuel_efficient_cars', 'reg_fuel_eff', 'non_reg_fuel_eff',
+    df = pd.DataFrame(columns=['peak_hour', 'hov', 'sov', 'fuel_efficient_sov', 'reg_fuel_eff',
                                'weather', 'weather_int', 'accident', 'accident_int', 'speed', 'estimate_fine',
-                               'actual_fine', 'accident_fine'])
+                               'actual_fine', 'accident_fine', 'revenue_lost_per_day'])
     my_lane = Lanes()
     weather_int_list = my_lane.fn_weather_int(no_of_samples)
-    #print(weather_int_list)
     accident_int_list = my_lane.fn_accident_int(no_of_samples)
-    #print(accident_int_list)
+
     df = my_lane.compute_AvgSpeed(df)
     df = my_lane.fn_vehicles(df, no_of_samples)
     df = my_lane.fn_fine(df)
     df = my_lane.fn_camera_functional(df, no_of_samples)
+
+    df['revenue_lost_per_day'] = df['estimate_fine'] - df['actual_fine']
+
     print(df)
     df.to_csv('HOV.csv')
+
     hist1 = df.hist(column='estimate_fine', bins=1000)
     plt.show()
     hist1 = df.hist(column='actual_fine', bins=1000)
-
     plt.show()
