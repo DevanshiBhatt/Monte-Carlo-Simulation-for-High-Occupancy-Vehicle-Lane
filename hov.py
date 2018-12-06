@@ -156,6 +156,6 @@ if __name__ == '__main__':
     plt.show()
     hist2 = df.hist(column='actual_fine', bins=1000)
     plt.show()
-    p = plt.hist(my_lane.rand_gen_WinterRains(10, 4, 2, 4, samples=no_of_samples))
+    p = plt.hist(my_lane.rand_gen_WinterRains(2, 4, 10, 4, samples=no_of_samples))
     plt.title('Modified PERT Distribution')
     plt.show()
