@@ -50,6 +50,7 @@ class Lanes:
         weather_int = weather_int * (high - low) + low
         return weather_int
 
+
     def fn_weather_int(self, no_of_samples):
         p = no_of_samples
         df['weather'] = choices(['Summer', 'Winter', 'Rains'], [0.5, 0.3, 0.2], k=p)
@@ -137,7 +138,7 @@ if __name__ == '__main__':
     no_of_samples = int(input('Enter the number of simulations: '))
     df = pd.DataFrame(columns=['peak_hour', 'hov', 'sov', 'fuel_efficient_cars', 'reg_fuel_eff', 'non_reg_fuel_eff',
                                'weather', 'weather_int', 'accident', 'accident_int', 'speed', 'estimate_fine',
-                               'actual_fine', 'accident_fine'])
+                               'actual_fine', 'accident_fine','revenue_lost_per_day'])
     my_lane = Lanes()
     weather_int_list = my_lane.fn_weather_int(no_of_samples)
     #print(weather_int_list)
@@ -147,10 +148,13 @@ if __name__ == '__main__':
     df = my_lane.fn_vehicles(df, no_of_samples)
     df = my_lane.fn_fine(df)
     df = my_lane.fn_camera_functional(df, no_of_samples)
+    df['revenue_lost_per_day'] = df['estimate_fine'] - df['actual_fine']
     print(df)
     df.to_csv('HOV.csv')
     hist1 = df.hist(column='estimate_fine', bins=1000)
     plt.show()
-    hist1 = df.hist(column='actual_fine', bins=1000)
-
+    hist2 = df.hist(column='actual_fine', bins=1000)
+    plt.show()
+    p = plt.hist(my_lane.rand_gen_WinterRains(10, 4, 2, 2, samples=no_of_samples))
+    plt.title('Modified PERT Distribution')
     plt.show()
