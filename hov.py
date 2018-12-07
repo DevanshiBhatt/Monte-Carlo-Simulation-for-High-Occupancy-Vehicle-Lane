@@ -1,6 +1,6 @@
 """
 Simulating the probability of the estimated fines on the I-880 freeway
-that the single occupancy vehicles will have to pay.
+that a single occupancy vehicles will have to pay.
 sov ~ single occupancy vehicle
 hov ~ high occupancy vehicle
 """
