@@ -10,7 +10,6 @@ from collections import Counter, defaultdict
 import typing
 import numpy as np
 import pandas as pd
-from numpy import random
 import matplotlib.pyplot as plt
 
 class Lanes:
@@ -152,8 +151,6 @@ if __name__ == '__main__':
     df = my_lane.fn_camera_functional(df, no_of_samples)
 
     df['revenue_lost_per_day'] = df['estimate_fine'] - df['actual_fine']
-
-    #print(df)
     df.to_csv('HOV.csv')
 
     hist1 = df.hist(column='estimate_fine', bins=10)
