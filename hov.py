@@ -6,7 +6,6 @@ hov ~ high occupancy vehicle
 """
 
 from random import choice, randint, choices
-import random
 from collections import Counter, defaultdict
 import typing
 import numpy as np
@@ -25,7 +24,7 @@ class Lanes:
         self.accident_intensity=int
         #self.k=100
 
-    def rand_gen_WinterRains(self,low, likely, high, confidence=4, samples=10):
+    def rand_gen_pert(self, low, likely, high, confidence=4, samples=10):
         """Produce random numbers according to the 'Modified PERT'
         distribution.
 
@@ -42,13 +41,12 @@ class Lanes:
         """
 
         mean = (low + confidence * likely + high) / (confidence + 2.0)
-
         a = (mean - low) / (high - low) * (confidence + 2)
         b = ((confidence + 1) * high - low - confidence * likely) / (high - low)
 
-        weather_int = np.random.beta(a, b, samples)
-        weather_int = weather_int * (high - low) + low
-        return weather_int
+        beta = np.random.beta(a, b, samples)
+        beta = beta * (high - low) + low
+        return beta
 
     def fn_weather_int(self, no_of_samples):
         p = no_of_samples
@@ -60,14 +58,16 @@ class Lanes:
                 weather_int=0
 
             elif season == 'Winter':
-                weather_int= np.median(self.rand_gen_WinterRains(10, 4, 2, samples=10))
+                weather_int= np.median(self.rand_gen_pert(1, 4, 10, samples=10))
 
             else:
-                weather_int= np.median(self.rand_gen_WinterRains(10, 5, 2, samples=10))
+                weather_int= np.median(self.rand_gen_pert(1, 5, 10, samples=10))
+
             weather_int_list.append(round(weather_int, 2))
             df['weather_int'] = pd.DataFrame(weather_int_list)
 
         return weather_int_list
+
 
     def fn_accident_int(self, no_of_samples):
         p = no_of_samples
@@ -78,11 +78,12 @@ class Lanes:
             if value == 'No':
                 accident_int=0
             else:
-                accident_int= np.median(self.rand_gen_WinterRains(10, 4, 2, samples=10))
+                accident_int= np.median(self.rand_gen_pert(1, 3, 10, samples=10))
             accident_int_list.append(round(accident_int, 2))
             df['accident_int'] = pd.DataFrame(accident_int_list)
 
         return accident_int_list
+
 
     def compute_AvgSpeed(self, df):
 
@@ -92,33 +93,35 @@ class Lanes:
 
         return df
 
+
     def fn_vehicles(self, df, no_of_samples):
         p = no_of_samples
         df['peak_hour'] = choices(['Yes', 'No'], [0.5, 0.5], k=p)
         hov_list, sov_list, fuel_eff_list, fuel_eff_reg_list, fuel_eff_non_reg_list = ([] for i in range(5))
+
         for i in df['peak_hour']:
             if i == 'Yes':
-                hov_vehicles = round(np.median(self.rand_gen_WinterRains(2000, 1740, 1600, samples=10)), 0)
-                sov_vehicles = round(np.median(self.rand_gen_WinterRains(300, 200, 150, samples=10)), 0)
+                hov_vehicles = round(np.median(self.rand_gen_pert(1500, 1740, 2000, samples=100)), 0)
+                sov_vehicles = round(np.median(self.rand_gen_pert(150, 200, 300, samples=100)), 0)
             else:
-                hov_vehicles = round(np.median(self.rand_gen_WinterRains(1800, 1540, 1400, samples=10)), 0)
-                sov_vehicles = round(np.median(self.rand_gen_WinterRains(200, 100, 50, samples=10)), 0)
+                hov_vehicles = round(np.median(self.rand_gen_pert(1400, 1540, 1800, samples=100)), 0)
+                sov_vehicles = round(np.median(self.rand_gen_pert(50, 100, 200, samples=100)), 0)
 
             fuel_eff_vehicles = 0.2 * sov_vehicles
             reg_fuel_eff = 0.7 * fuel_eff_vehicles
-            #non_reg_fuel_eff = 0.3 * fuel_eff_vehicles
+
             hov_list.append(hov_vehicles)
             sov_list.append(sov_vehicles)
             fuel_eff_list.append(round(fuel_eff_vehicles,0))
             fuel_eff_reg_list.append(round(reg_fuel_eff,0))
-            #fuel_eff_non_reg_list.append(round(non_reg_fuel_eff,0))
+
         df['hov'] = pd.DataFrame(hov_list)
         df['sov'] = pd.DataFrame(sov_list)
         df['fuel_efficient_sov'] = pd.DataFrame(fuel_eff_list)
         df['reg_fuel_eff'] = pd.DataFrame(fuel_eff_reg_list)
-        #df['non_reg_fuel_eff'] = pd.DataFrame(fuel_eff_non_reg_list)
 
         return df
+
 
     def fn_fine(self, df):
         # to calculate the estimated fine sov have to pay
@@ -128,13 +131,14 @@ class Lanes:
     def fn_camera_functional(self, df, no_of_samples):
         p=no_of_samples
         df['camera_functional'] = choices(['Yes', 'No'], [0.8, 0.2], k=p)
+        plt.hist(df['camera_functional'], density=False)
         df['actual_fine'] = np.where(df['camera_functional'] == 'Yes', (0.8 * (df['sov'] - df['reg_fuel_eff']) * 450 * 4),
                                      0)
         return df
 
 
 if __name__ == '__main__':
-    no_of_samples = int(input('Enter the number of simulations: '))
+    no_of_samples = int(input('Enter the number of samples: '))
     df = pd.DataFrame(columns=['peak_hour', 'hov', 'sov', 'fuel_efficient_sov', 'reg_fuel_eff',
                                'weather', 'weather_int', 'accident', 'accident_int', 'speed', 'estimate_fine',
                                'actual_fine', 'accident_fine', 'revenue_lost_per_day'])
@@ -149,10 +153,12 @@ if __name__ == '__main__':
 
     df['revenue_lost_per_day'] = df['estimate_fine'] - df['actual_fine']
 
-    print(df)
+    #print(df)
     df.to_csv('HOV.csv')
 
-    hist1 = df.hist(column='estimate_fine', bins=1000)
+    hist1 = df.hist(column='estimate_fine', bins=10)
     plt.show()
-    hist1 = df.hist(column='actual_fine', bins=1000)
+    hist1 = df.hist(column='actual_fine', bins=10)
+    plt.show()
+    hist1 = df.hist(column='revenue_lost_per_day', bins=10)
     plt.show()
