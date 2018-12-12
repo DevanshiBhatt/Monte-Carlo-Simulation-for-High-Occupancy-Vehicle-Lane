@@ -327,7 +327,7 @@ if __name__ == '__main__':
     ## Plotting Estimated Fine , Actual Fine and Revenue lost per day in histograms
     # hist1 = df.hist(column='estimate_fine', bins=10)
     # plt.show()
-    # hist1 = df.hist(column='actual_fine', bins=10)
+    # hist2 = df.hist(column='actual_fine', bins=10)
     # plt.show()
-    # hist1 = df.hist(column='revenue_lost_per_day', bins=10)
+    # hist3 = df.hist(column='revenue_lost_per_day', bins=10)
     # plt.show()
