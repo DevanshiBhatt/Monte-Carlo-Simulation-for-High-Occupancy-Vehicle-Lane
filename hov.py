@@ -86,7 +86,6 @@ class Lanes:
                 weather_int= np.median(self.rand_gen_pert(1, 5, 10, samples=10))
 
             weather_int_list.append(round(weather_int, 2))
-            #df['weather_int'] = pd.DataFrame(weather_int_list)
 
         return weather_int_list
 
@@ -112,8 +111,6 @@ class Lanes:
                 no_of_accidents = np.median(self.rand_gen_pert(1, 5, 10, samples=10))
 
             no_of_accidents_list.append(round(no_of_accidents, 0))
-            # df['no_of_accidents'] = pd.DataFrame(no_of_accidents_list)
-            # df['accident_fine'] = df['no_of_accidents'] * 100
 
         return no_of_accidents_list
 
@@ -140,31 +137,14 @@ class Lanes:
                 hov_speed_list.append(speed)
                 gpv_speed_list.append(gpv_speed)
 
-        # df['hov_speed (mph)'] = pd.DataFrame(hov_speed_list)
-        # df['gpv_speed (mph)'] = pd.DataFrame(gpv_speed_list)
-
         return hov_speed_list, gpv_speed_list
-
-    # @staticmethod
-    # def fn_compute_avgtime():
-    #     """
-    #     This function computes the average time required by the vehicles to travel
-    #     on the HOV and general purpose lanes.
-    #     The length of both the lanes is considered to be 20 miles.
-    #
-    #     :return: None
-    #     """
-    #     df['hov_time'] = round(20/df['hov_speed (mph)'], 2)
-    #     df['gpv_time'] = round(20/df['gpv_speed (mph)'], 2)
-    #
-    #     return
 
     @staticmethod
     def fn_compute_pollution():
         """
-        This function calculates the total emissions (in grams) of pollutants from vehicles
-        in case of both HOV and general purpose lanes.
-        Pollutant emitted: Carbon Monoxide.
+        This function calculates the carbon monoxide emissions (in grams) for both
+        HOV & general purpose vehicle for a 20 mile stretch. This value is calculated
+        using data from a research article based on advantages of hov lanes.
 
         :return:
         """
@@ -182,7 +162,6 @@ class Lanes:
                 #181 grams of CO is emitted when the speed of vehicle is greater than 40 mph
                 gpv_pol_emiss = 181
                 gvp_pol_emiss_list.append(gpv_pol_emiss)
-        df['gpv_emis'] = pd.DataFrame(gvp_pol_emiss_list)
 
         #emissions in the HOV lane
         for index, row in df.iterrows():
@@ -192,9 +171,8 @@ class Lanes:
                 hov_pol_emiss_list.append(hov_pol_emiss)
             else:
                 #CO emissions are reduced by 78 grams if vehicle speed on HOV lane is greater than 60mph
-                hov_pol_emiss = 211 - 78
+                hov_pol_emiss = 133
                 hov_pol_emiss_list.append(hov_pol_emiss)
-        df['hov_emis'] = pd.DataFrame(hov_pol_emiss_list)
 
         return hov_pol_emiss_list, gvp_pol_emiss_list
 
@@ -243,46 +221,7 @@ class Lanes:
             fuel_eff_list.append(round(fuel_eff_vehicles, 0))
             fuel_eff_reg_list.append(round(reg_fuel_eff, 0))
 
-        # df['hov'] = pd.DataFrame(hov_list)
-        # df['sov'] = pd.DataFrame(sov_list)
-        # df['gpv'] = pd.DataFrame(gpv_list)
-        # df['fuel_efficient_sov'] = pd.DataFrame(fuel_eff_list)
-        # df['reg_fuel_eff'] = pd.DataFrame(fuel_eff_reg_list)
-
         return hov_list, sov_list, fuel_eff_list, fuel_eff_reg_list, fuel_eff_non_reg_list, gpv_list
-
-    # def fn_fine(self):
-    #     """
-    #     This function calculates the estimated fine that is collected in a day from all the SOV vehicles
-    #     that are either non-hybrid or are hybrid but non-registered for using the HOV lane.
-    #     Fine amount is fixed- $450.
-    #     Fine is calculated only for the 4 peak hours of a day.
-    #
-    #     :return: None
-    #     """
-    #
-    #     df['estimate_fine'] = (df['sov'] - df['reg_fuel_eff']) * 450 * 4
-    #     return
-
-    # def fn_camera_functional(self, no_of_samples):
-    #     """
-    #     Calculating actual fine earned by the state depending on the camera functionality.
-    #     It is assumed that the cameras are functional 80% of the time.
-    #
-    #     :param no_of_samples: User input
-    #     :return: None
-    #     """
-    #
-    #     p=no_of_samples
-    #     df['camera_functional'] = choices(['Yes', 'No'], [0.8, 0.2], k=p)
-    #
-    #     ## Plotting distribution of Functionality of Camera
-    #     # plt.hist(df['camera_functional'], density=False)
-    #     # plt.title('Distribution of Camera Functionality')
-    #
-    #     df['actual_fine'] = np.where(df['camera_functional'] == 'Yes', (0.8 * (df['sov'] - df['reg_fuel_eff']) * 450 * 4),
-    #                                  0)
-    #     return
 
 def fn_camera_functional(no_of_samples):
     """
@@ -381,18 +320,19 @@ if __name__ == '__main__':
     # OUTPUT
     # ------------------------------------------------------------------------------------------------------------------
     print('The below output is considering the hov lane timings and how it consequently affects the general purpose lane - ')
-    print('The average speed for high occupancy vehicles per day is {:>{width}.{prec}f} mph'.format(np.mean(df['hov_speed (mph)']), width=12, prec=3))
-    print('The average speed for general purpose lane vehicles per day is {:>{width}.{prec}f} mph'.format(np.mean(df['gpv_speed (mph)']), width=0, prec=3), '\n')
+    #temp[count_row_num].append(format(total_distance, '.2f'))
+    print('The average speed for high occupancy vehicles per day is ' + format(np.mean(df['hov_speed (mph)']),'.2f')+' mph')
+    print('The average speed for general purpose vehicles per day is ' + format(np.mean(df['gpv_speed (mph)']),'.2f')+' mph\n')
 
-    print('The average time (in hours) taken by high occupancy vehicles to cover a 20 mile stretch is {:>{width}.{prec}f}'.format(np.mean(df['hov_time']), width=11, prec=3))
-    print('The average time (in hours) taken by general purpose lane vehicles to cover a 20 mile stretch is {:>{width}.{prec}f}'.format(np.mean(df['gpv_time']), width=0, prec=3),'\n')
+    print('The average time taken by high occupancy vehicles to cover a 20 mile stretch is ' + format(np.mean(df['hov_time']),'.2f')+' hrs')
+    print('The average time taken by general purpose vehicles to cover a 20 mile stretch is ' + format(np.mean(df['gpv_time']),'.2f')+' hrs\n')
 
-    print('The average carbon monoxide emission by high occupancy vehicles is {:>{width}.{prec}f}'.format(np.mean(df['hov_emis']), width=12, prec=2), 'grams')
-    print('The average carbon monoxide emission by general purpose lane vehicles is {:>{width}.{prec}f}'.format(np.mean(df['gpv_emis']), width=0, prec=2), 'grams\n')
+    print('The average carbon monoxide emission by high occupancy vehicles is ' + format(np.mean(df['hov_emis']),'.2f') + ' grams')
+    print('The average carbon monoxide emission by general purpose vehicles is ' + format(np.mean(df['gpv_emis']),'.2f') + ' grams\n')
 
-    print('The average estimated revenue the state should be collecting per day is ' + str(np.mean(df['estimate_fine'])))
-    print('The average actual revenue the state is collecting per day is ' + str(np.mean(df['actual_fine'])))
-    print('The average revenue lost per day by the state is ' + str(np.mean(df['revenue_lost_per_day'])))
+    print('The average estimated revenue the state should be collecting per day is $' + format(np.mean(df['estimate_fine']),'.2f'))
+    print('The average actual revenue the state is collecting per day is $' + format(np.mean(df['actual_fine']),'.2f'))
+    print('The average revenue lost per day by the state is $' + format(np.mean(df['revenue_lost_per_day']),'.2f'))
     # ------------------------------------------------------------------------------------------------------------------
 
     ## Plotting Estimated Fine , Actual Fine and Revenue lost per day in histograms
