@@ -1,17 +1,14 @@
 """
 IS 590PR - Programming for Analytics & Data Processing
 Final Project- Simulating the probability of the estimated fines that a single occupancy vehicles will have to pay.
-
 Authors:
 Aditya Kadrekar
 Ankita Pant
 Devanshi Bhatt
-
 Important abbreviations used in the code:
 sov ~ single occupancy vehicles
 hov ~ high occupancy vehicles
 gpv ~ general purpose vehicles
-
 Note:
 The ranges for all randomized values have been considered based on the real data
 obtained from various sources that are cited in the README document of github repository of the project.
@@ -29,14 +26,12 @@ class Lanes:
     def __init__(self):
         self.num_sov = 0
         self.num_hov = 0
-        self.weather=''
-        self.weather_int=0
-        self.accident=''
-        self.accident_intensity=int
+        self.weather = ''
+        self.weather_int = 0
+        self.accident = ''
 
     def rand_gen_pert(self, low, likely, high, confidence=4, samples=10):
         """Produce random numbers according to the 'Modified PERT' distribution.
-
         :param low: The lowest value expected as possible.
         :param likely: The 'most likely' value, statistically, the mode.
         :param high: The highest value expected as possible.
@@ -45,7 +40,6 @@ class Lanes:
                             4 here matches the standard PERT curve. Higher
                             values indicate higher confidence in the mode.
                             Currently allows values 1-18
-
         Formulas from "Modified Pert Simulation" by Paulo Buchsbaum.
         """
 
@@ -64,7 +58,6 @@ class Lanes:
         3 main seasons considered: Summer, Winter, Rains.
         Seasons are randomly chosen for every sample with weights assigned to each season.
         'Modified PERT' distribution is used for the random selection of weather intensity.
-
         :param no_of_samples: Number of samples the user wants to consider for the simulation
         :return: list with all weather intensities
         """
@@ -80,10 +73,10 @@ class Lanes:
                 weather_int=0
 
             elif season == 'Winter':
-                weather_int= np.median(self.rand_gen_pert(1, 4, 10, samples=10))
+                weather_int = np.median(self.rand_gen_pert(1, 4, 10, samples=10))
 
             else:
-                weather_int= np.median(self.rand_gen_pert(1, 5, 10, samples=10))
+                weather_int = np.median(self.rand_gen_pert(1, 5, 10, samples=10))
 
             weather_int_list.append(round(weather_int, 2))
 
@@ -95,7 +88,6 @@ class Lanes:
         If yes, then the number of accidents per day has been randomized.
         'Modified PERT' distribution is used for the random selection of no. of accidents with
         minimum 1 accident, maximum 10 accidents and most likely 5 accidents.
-
         :param no_of_samples: Number of samples the user wants to consider for the simulation
         :return: list with number of accidents
         """
@@ -145,7 +137,6 @@ class Lanes:
         This function calculates the carbon monoxide emissions (in grams) for both
         HOV & general purpose vehicle for a 20 mile stretch. This value is calculated
         using data from a research article based on advantages of hov lanes.
-
         :return:
         """
 
@@ -184,7 +175,6 @@ class Lanes:
         which is 20% of the total SOV vehicles on the HOV lane.
         It is assumed that 70% of fuel-efficient SOV vehicles are registered to drive on the HOV lane.
         'Modified PERT' distribution is used for the random number generation.
-
         :param no_of_samples: Number of samples the user wants to consider for the simulation
         :return: None
         """
@@ -210,7 +200,7 @@ class Lanes:
                 # general purpose vehicles increases during non peak hour as there is no hov lane
                 gpv_vehicles = np.rint(np.median(self.rand_gen_pert(1500, 2000, 2200, samples=10)))
 
-            #number of  fuel-efficient/hybrid vehicles and registered fuel-efficient/hybrid vehicles
+            #number of fuel-efficient/hybrid vehicles and registered fuel-efficient/hybrid vehicles
             fuel_eff_vehicles = 0.2 * sov_vehicles
             reg_fuel_eff = 0.7 * fuel_eff_vehicles
 
@@ -224,12 +214,10 @@ class Lanes:
         return hov_list, sov_list, fuel_eff_list, fuel_eff_reg_list, fuel_eff_non_reg_list, gpv_list
 
 
-
 def fn_camera_functional(no_of_samples):
     """
     Calculating actual fine earned by the state depending on the camera functionality.
     It is assumed that the cameras are functional 80% of the time.
-
     :param no_of_samples: User input
     :return: None
     """
@@ -245,25 +233,25 @@ def fn_camera_functional(no_of_samples):
                                      0)
     return
 
+
 def fn_fine():
     """
     This function calculates the estimated fine that is collected in a day from all the SOV vehicles
     that are either non-hybrid or are hybrid but non-registered for using the HOV lane.
     Fine amount is fixed- $450.
     Fine is calculated only for the 4 peak hours of a day.
-
     :return: None
     """
 
     df['estimate_fine'] = (df['sov'] - df['reg_fuel_eff']) * 450 * 4
     return
 
+
 def fn_compute_avgtime():
     """
     This function computes the average time required by the vehicles to travel
     on the HOV and general purpose lanes.
     The length of both the lanes is considered to be 20 miles.
-
     :return: None
     """
     df['hov_time'] = np.around(20/(df['hov_speed (mph)']), decimals=2)
@@ -271,14 +259,15 @@ def fn_compute_avgtime():
 
     return
 
+
 if __name__ == '__main__':
 
     samples_list=list(range(50, 1000, 50 ))
-    print(samples_list)
+    #print(samples_list)
 
     try:
         print('More the number of samples for simulation, better is the accuracy of predicted values\n')
-        no_of_samples = int(input('Enter the number of samples in power of 10: '))
+        no_of_samples = int(input('Enter the number of samples in power of 10: \n'))
 
         if no_of_samples in samples_list:
             pass
@@ -321,20 +310,27 @@ if __name__ == '__main__':
 
     # OUTPUT
     # ------------------------------------------------------------------------------------------------------------------
-    print('The below output is considering the hov lane timings and how it consequently affects the general purpose lane - ')
-    #temp[count_row_num].append(format(total_distance, '.2f'))
-    print('The average speed for high occupancy vehicles per day is ' + format(np.mean(df['hov_speed (mph)']),'.2f')+' mph')
-    print('The average speed for general purpose vehicles per day is ' + format(np.mean(df['gpv_speed (mph)']),'.2f')+' mph\n')
+    print('The below output is considering the hov lane timings and how it consequently affects the general purpose lane - \n')
+    print('Speed')
+    print("------------------------------------------------------------------------------------")
+    print('The average speed for high occupancy vehicles per day is ' + format(np.mean(df['hov_speed (mph)']), '.2f') + ' mph')
+    print('The average speed for general purpose vehicles per day is ' + format(np.mean(df['gpv_speed (mph)']), '.2f') + ' mph\n')
 
-    print('The average time taken by high occupancy vehicles to cover a 20 mile stretch is ' + format(np.mean(df['hov_time']),'.2f')+' hrs')
-    print('The average time taken by general purpose vehicles to cover a 20 mile stretch is ' + format(np.mean(df['gpv_time']),'.2f')+' hrs\n')
+    print('Time')
+    print("------------------------------------------------------------------------------------")
+    print('The average time taken by high occupancy vehicles to cover a 20 mile stretch is ' + format(np.mean(df['hov_time']), '.2f') + ' hrs')
+    print('The average time taken by general purpose vehicles to cover a 20 mile stretch is ' + format(np.mean(df['gpv_time']), '.2f') + ' hrs\n')
 
-    print('The average carbon monoxide emission by high occupancy vehicles is ' + format(np.mean(df['hov_emis']),'.2f') + ' grams')
-    print('The average carbon monoxide emission by general purpose vehicles is ' + format(np.mean(df['gpv_emis']),'.2f') + ' grams\n')
+    print('Pollutant')
+    print("------------------------------------------------------------------------------------")
+    print('The average carbon monoxide emission per high occupancy vehicle is ' + format(np.mean(df['hov_emis']), '.2f') + ' grams')
+    print('The average carbon monoxide emission per general purpose vehicle is ' + format(np.mean(df['gpv_emis']), '.2f') + ' grams\n')
 
-    print('The average estimated revenue the state should be collecting per day is $' + format(np.mean(df['estimate_fine']),'.2f'))
-    print('The average actual revenue the state is collecting per day is $' + format(np.mean(df['actual_fine']),'.2f'))
-    print('The average revenue lost per day by the state is $'+format(np.mean(df['revenue_lost_per_day']),'.2f'))
+    print('Revenue')
+    print("------------------------------------------------------------------------------------")
+    print('The average estimated revenue the state should be collecting per day is $' + format(np.mean(df['estimate_fine']), '.2f'))
+    print('The average actual revenue the state is collecting per day is $' + format(np.mean(df['actual_fine']), '.2f'))
+    print('The average revenue lost per day by the state is $' + format(np.mean(df['revenue_lost_per_day']), '.2f'))
     # ------------------------------------------------------------------------------------------------------------------
 
     ## Plotting Estimated Fine , Actual Fine and Revenue lost per day in histograms
@@ -344,4 +340,3 @@ if __name__ == '__main__':
     # plt.show()
     # hist3 = df.hist(column='revenue_lost_per_day', bins=10)
     # plt.show()
-
