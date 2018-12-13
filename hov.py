@@ -89,7 +89,7 @@ class Lanes:
 
         return weather_int_list
 
-    def fn_accident_int(self, no_of_samples):
+    def fn_num_accidents(self, no_of_samples):
         """
         This function checks for occurrence of an accident on the HOV lane.
         If yes, then the number of accidents per day has been randomized.
@@ -110,7 +110,7 @@ class Lanes:
             else:
                 no_of_accidents = np.median(self.rand_gen_pert(1, 5, 10, samples=10))
 
-            no_of_accidents_list.append(round(no_of_accidents, 0))
+            no_of_accidents_list.append(np.ceil(no_of_accidents))
 
         return no_of_accidents_list
 
@@ -127,20 +127,20 @@ class Lanes:
         for index, row in df.iterrows():
             if (row['weather'] == 'Winter' or row['weather'] == 'Rains') and row['weather_int'] > 3 \
                     and row['no_of_accidents'] > 3 and (row['hov'] > 1400 or row['gpv'] < 1500):
-                speed = round(np.median(self.rand_gen_pert(35, 45, 75, samples=10)), 2)
-                gpv_speed = round(np.median(self.rand_gen_pert(25, 35, 50, samples=10)), 2)
+                speed = np.around(np.median(self.rand_gen_pert(35, 45, 75, samples=10)), decimals=2)
+                gpv_speed = np.around(np.median(self.rand_gen_pert(25, 35, 50, samples=10)), decimals=2)
                 hov_speed_list.append(speed)
                 gpv_speed_list.append(gpv_speed)
             else:
-                speed = round(np.median(self.rand_gen_pert(70, 80, 85, samples=10)), 2)
-                gpv_speed = round(np.median(self.rand_gen_pert(35, 45, 60, samples=10)), 2)
+                speed = np.around(np.median(self.rand_gen_pert(70, 80, 85, samples=10)), decimals=2)
+                gpv_speed = np.around(np.median(self.rand_gen_pert(35, 45, 60, samples=10)), decimals=2)
                 hov_speed_list.append(speed)
                 gpv_speed_list.append(gpv_speed)
 
         return hov_speed_list, gpv_speed_list
 
     @staticmethod
-    def fn_compute_pollution():
+    def fn_compute_emission():
         """
         This function calculates the carbon monoxide emissions (in grams) for both
         HOV & general purpose vehicle for a 20 mile stretch. This value is calculated
@@ -200,15 +200,15 @@ class Lanes:
 
             #there are more number of vehicles in peak hours than in non-peak hours
             if i == 'Yes':
-                hov_vehicles = round(np.median(self.rand_gen_pert(1080, 1440, 1740, samples=10)), 0)
-                sov_vehicles = round(np.median(self.rand_gen_pert(150, 200, 300, samples=10)), 0)
+                hov_vehicles = np.rint(np.median(self.rand_gen_pert(1080, 1440, 1740, samples=10)))
+                sov_vehicles = np.rint(np.median(self.rand_gen_pert(150, 200, 300, samples=10)))
                 # general purpose vehicles decreases during peak hour as they move to hov lane
-                gpv_vehicles = round(np.median(self.rand_gen_pert(1000, 1250, 1500, samples=10)), 0)
+                gpv_vehicles = np.rint(np.median(self.rand_gen_pert(1000, 1250, 1500, samples=10)))
             else:
-                hov_vehicles = round(np.median(self.rand_gen_pert(660, 1080, 1680, samples=10)), 0)
-                sov_vehicles = round(np.median(self.rand_gen_pert(50, 100, 200, samples=10)), 0)
+                hov_vehicles = np.rint(np.median(self.rand_gen_pert(660, 1080, 1680, samples=10)))
+                sov_vehicles = np.rint(np.median(self.rand_gen_pert(50, 100, 200, samples=10)))
                 # general purpose vehicles increases during non peak hour as there is no hov lane
-                gpv_vehicles = round(np.median(self.rand_gen_pert(1500, 2000, 2200, samples=10)), 0)
+                gpv_vehicles = np.rint(np.median(self.rand_gen_pert(1500, 2000, 2200, samples=10)))
 
             #number of  fuel-efficient/hybrid vehicles and registered fuel-efficient/hybrid vehicles
             fuel_eff_vehicles = 0.2 * sov_vehicles
@@ -222,6 +222,8 @@ class Lanes:
             fuel_eff_reg_list.append(round(reg_fuel_eff, 0))
 
         return hov_list, sov_list, fuel_eff_list, fuel_eff_reg_list, fuel_eff_non_reg_list, gpv_list
+
+
 
 def fn_camera_functional(no_of_samples):
     """
@@ -264,8 +266,8 @@ def fn_compute_avgtime():
 
     :return: None
     """
-    df['hov_time'] = round(20/df['hov_speed (mph)'], 2)
-    df['gpv_time'] = round(20/df['gpv_speed (mph)'], 2)
+    df['hov_time'] = np.around(20/(df['hov_speed (mph)']), decimals=2)
+    df['gpv_time'] = np.around(20/(df['gpv_speed (mph)']), decimals=2)
 
     return
 
@@ -294,7 +296,7 @@ if __name__ == '__main__':
     my_lane = Lanes()
     weather_int_list = my_lane.fn_weather_int(no_of_samples)
     df['weather_int'] = pd.DataFrame(weather_int_list)
-    no_of_accidents_list = my_lane.fn_accident_int(no_of_samples)
+    no_of_accidents_list = my_lane.fn_num_accidents(no_of_samples)
     df['no_of_accidents'] = pd.DataFrame(no_of_accidents_list)
     df['accident_fine'] = df['no_of_accidents'] * 100
     hov_list, sov_list, fuel_eff_list, fuel_eff_reg_list, fuel_eff_non_reg_list, gpv_list = my_lane.fn_vehicles(no_of_samples)
@@ -309,7 +311,7 @@ if __name__ == '__main__':
     df['hov_speed (mph)'] = pd.DataFrame(hov_speed_list)
     df['gpv_speed (mph)'] = pd.DataFrame(gpv_speed_list)
     fn_compute_avgtime()
-    hov_pol_emiss_list, gvp_pol_emiss_list = my_lane.fn_compute_pollution()
+    hov_pol_emiss_list, gvp_pol_emiss_list = my_lane.fn_compute_emission()
     df['gpv_emis'] = pd.DataFrame(gvp_pol_emiss_list)
     df['hov_emis'] = pd.DataFrame(hov_pol_emiss_list)
 
@@ -332,7 +334,7 @@ if __name__ == '__main__':
 
     print('The average estimated revenue the state should be collecting per day is $' + format(np.mean(df['estimate_fine']),'.2f'))
     print('The average actual revenue the state is collecting per day is $' + format(np.mean(df['actual_fine']),'.2f'))
-    print('The average revenue lost per day by the state is $' + format(np.mean(df['revenue_lost_per_day']),'.2f'))
+    print('The average revenue lost per day by the state is $'+format(np.mean(df['revenue_lost_per_day']),'.2f'))
     # ------------------------------------------------------------------------------------------------------------------
 
     ## Plotting Estimated Fine , Actual Fine and Revenue lost per day in histograms
