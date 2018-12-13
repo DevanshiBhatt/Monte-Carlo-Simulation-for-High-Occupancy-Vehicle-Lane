@@ -86,7 +86,7 @@ class Lanes:
                 weather_int= np.median(self.rand_gen_pert(1, 5, 10, samples=10))
 
             weather_int_list.append(round(weather_int, 2))
-            df['weather_int'] = pd.DataFrame(weather_int_list)
+            #df['weather_int'] = pd.DataFrame(weather_int_list)
 
         return weather_int_list
 
@@ -112,8 +112,8 @@ class Lanes:
                 no_of_accidents = np.median(self.rand_gen_pert(1, 5, 10, samples=10))
 
             no_of_accidents_list.append(round(no_of_accidents, 0))
-            df['no_of_accidents'] = pd.DataFrame(no_of_accidents_list)
-            df['accident_fine'] = df['no_of_accidents'] * 100
+            # df['no_of_accidents'] = pd.DataFrame(no_of_accidents_list)
+            # df['accident_fine'] = df['no_of_accidents'] * 100
 
         return no_of_accidents_list
 
@@ -140,24 +140,24 @@ class Lanes:
                 hov_speed_list.append(speed)
                 gpv_speed_list.append(gpv_speed)
 
-        df['hov_speed (mph)'] = pd.DataFrame(hov_speed_list)
-        df['gpv_speed (mph)'] = pd.DataFrame(gpv_speed_list)
+        # df['hov_speed (mph)'] = pd.DataFrame(hov_speed_list)
+        # df['gpv_speed (mph)'] = pd.DataFrame(gpv_speed_list)
 
-        return
+        return hov_speed_list, gpv_speed_list
 
-    @staticmethod
-    def fn_compute_avgtime():
-        """
-        This function computes the average time required by the vehicles to travel
-        on the HOV and general purpose lanes.
-        The length of both the lanes is considered to be 20 miles.
-
-        :return: None
-        """
-        df['hov_time'] = round(20/df['hov_speed (mph)'], 2)
-        df['gpv_time'] = round(20/df['gpv_speed (mph)'], 2)
-
-        return
+    # @staticmethod
+    # def fn_compute_avgtime():
+    #     """
+    #     This function computes the average time required by the vehicles to travel
+    #     on the HOV and general purpose lanes.
+    #     The length of both the lanes is considered to be 20 miles.
+    #
+    #     :return: None
+    #     """
+    #     df['hov_time'] = round(20/df['hov_speed (mph)'], 2)
+    #     df['gpv_time'] = round(20/df['gpv_speed (mph)'], 2)
+    #
+    #     return
 
     @staticmethod
     def fn_compute_pollution():
@@ -196,7 +196,7 @@ class Lanes:
                 hov_pol_emiss_list.append(hov_pol_emiss)
         df['hov_emis'] = pd.DataFrame(hov_pol_emiss_list)
 
-        return
+        return hov_pol_emiss_list, gvp_pol_emiss_list
 
     def fn_vehicles(self, no_of_samples):
         """
@@ -243,50 +243,109 @@ class Lanes:
             fuel_eff_list.append(round(fuel_eff_vehicles, 0))
             fuel_eff_reg_list.append(round(reg_fuel_eff, 0))
 
-        df['hov'] = pd.DataFrame(hov_list)
-        df['sov'] = pd.DataFrame(sov_list)
-        df['gpv'] = pd.DataFrame(gpv_list)
-        df['fuel_efficient_sov'] = pd.DataFrame(fuel_eff_list)
-        df['reg_fuel_eff'] = pd.DataFrame(fuel_eff_reg_list)
+        # df['hov'] = pd.DataFrame(hov_list)
+        # df['sov'] = pd.DataFrame(sov_list)
+        # df['gpv'] = pd.DataFrame(gpv_list)
+        # df['fuel_efficient_sov'] = pd.DataFrame(fuel_eff_list)
+        # df['reg_fuel_eff'] = pd.DataFrame(fuel_eff_reg_list)
 
-        return
+        return hov_list, sov_list, fuel_eff_list, fuel_eff_reg_list, fuel_eff_non_reg_list, gpv_list
 
-    def fn_fine(self):
-        """
-        This function calculates the estimated fine that is collected in a day from all the SOV vehicles
-        that are either non-hybrid or are hybrid but non-registered for using the HOV lane.
-        Fine amount is fixed- $450.
-        Fine is calculated only for the 4 peak hours of a day.
+    # def fn_fine(self):
+    #     """
+    #     This function calculates the estimated fine that is collected in a day from all the SOV vehicles
+    #     that are either non-hybrid or are hybrid but non-registered for using the HOV lane.
+    #     Fine amount is fixed- $450.
+    #     Fine is calculated only for the 4 peak hours of a day.
+    #
+    #     :return: None
+    #     """
+    #
+    #     df['estimate_fine'] = (df['sov'] - df['reg_fuel_eff']) * 450 * 4
+    #     return
 
-        :return: None
-        """
+    # def fn_camera_functional(self, no_of_samples):
+    #     """
+    #     Calculating actual fine earned by the state depending on the camera functionality.
+    #     It is assumed that the cameras are functional 80% of the time.
+    #
+    #     :param no_of_samples: User input
+    #     :return: None
+    #     """
+    #
+    #     p=no_of_samples
+    #     df['camera_functional'] = choices(['Yes', 'No'], [0.8, 0.2], k=p)
+    #
+    #     ## Plotting distribution of Functionality of Camera
+    #     # plt.hist(df['camera_functional'], density=False)
+    #     # plt.title('Distribution of Camera Functionality')
+    #
+    #     df['actual_fine'] = np.where(df['camera_functional'] == 'Yes', (0.8 * (df['sov'] - df['reg_fuel_eff']) * 450 * 4),
+    #                                  0)
+    #     return
 
-        df['estimate_fine'] = (df['sov'] - df['reg_fuel_eff']) * 450 * 4
-        return
+def fn_camera_functional(no_of_samples):
+    """
+    Calculating actual fine earned by the state depending on the camera functionality.
+    It is assumed that the cameras are functional 80% of the time.
 
-    def fn_camera_functional(self, no_of_samples):
-        """
-        Calculating actual fine earned by the state depending on the camera functionality.
-        It is assumed that the cameras are functional 80% of the time.
+    :param no_of_samples: User input
+    :return: None
+    """
 
-        :param no_of_samples: User input
-        :return: None
-        """
+    p=no_of_samples
+    df['camera_functional'] = choices(['Yes', 'No'], [0.8, 0.2], k=p)
 
-        p=no_of_samples
-        df['camera_functional'] = choices(['Yes', 'No'], [0.8, 0.2], k=p)
+    # Plotting distribution of Functionality of Camera
+    # plt.hist(df['camera_functional'], density=False)
+    # plt.title('Distribution of Camera Functionality')
 
-        ## Plotting distribution of Functionality of Camera
-        # plt.hist(df['camera_functional'], density=False)
-        # plt.title('Distribution of Camera Functionality')
-
-        df['actual_fine'] = np.where(df['camera_functional'] == 'Yes', (0.8 * (df['sov'] - df['reg_fuel_eff']) * 450 * 4),
+    df['actual_fine'] = np.where(df['camera_functional'] == 'Yes', (0.8 * (df['sov'] - df['reg_fuel_eff']) * 450 * 4),
                                      0)
-        return
+    return
+
+def fn_fine():
+    """
+    This function calculates the estimated fine that is collected in a day from all the SOV vehicles
+    that are either non-hybrid or are hybrid but non-registered for using the HOV lane.
+    Fine amount is fixed- $450.
+    Fine is calculated only for the 4 peak hours of a day.
+
+    :return: None
+    """
+
+    df['estimate_fine'] = (df['sov'] - df['reg_fuel_eff']) * 450 * 4
+    return
+
+def fn_compute_avgtime():
+    """
+    This function computes the average time required by the vehicles to travel
+    on the HOV and general purpose lanes.
+    The length of both the lanes is considered to be 20 miles.
+
+    :return: None
+    """
+    df['hov_time'] = round(20/df['hov_speed (mph)'], 2)
+    df['gpv_time'] = round(20/df['gpv_speed (mph)'], 2)
+
+    return
 
 if __name__ == '__main__':
 
-    no_of_samples = int(input('Enter the number of samples: '))
+    samples_list=list(range(50, 1000, 50 ))
+    print(samples_list)
+
+    try:
+        print('More the number of samples for simulation, better is the accuracy of predicted values\n')
+        no_of_samples = int(input('Enter the number of samples in power of 10: '))
+
+        if no_of_samples in samples_list:
+            pass
+        else:
+            no_of_samples = int(input('Please enter a number which is power of 10: '))
+
+    except Exception as e:
+        print(e)
 
     df = pd.DataFrame(columns=['peak_hour', 'hov', 'sov', 'gpv', 'fuel_efficient_sov', 'reg_fuel_eff',
                                'camera_functional', 'weather', 'weather_int', 'accident', 'no_of_accidents', 'accident_fine',
@@ -295,13 +354,25 @@ if __name__ == '__main__':
 
     my_lane = Lanes()
     weather_int_list = my_lane.fn_weather_int(no_of_samples)
-    accident_int_list = my_lane.fn_accident_int(no_of_samples)
-    my_lane.fn_vehicles(no_of_samples)
-    my_lane.fn_fine()
-    my_lane.fn_camera_functional(no_of_samples)
-    my_lane.fn_compute_avgspeed()
-    my_lane.fn_compute_avgtime()
-    my_lane.fn_compute_pollution()
+    df['weather_int'] = pd.DataFrame(weather_int_list)
+    no_of_accidents_list = my_lane.fn_accident_int(no_of_samples)
+    df['no_of_accidents'] = pd.DataFrame(no_of_accidents_list)
+    df['accident_fine'] = df['no_of_accidents'] * 100
+    hov_list, sov_list, fuel_eff_list, fuel_eff_reg_list, fuel_eff_non_reg_list, gpv_list = my_lane.fn_vehicles(no_of_samples)
+    df['hov'] = pd.DataFrame(hov_list)
+    df['sov'] = pd.DataFrame(sov_list)
+    df['gpv'] = pd.DataFrame(gpv_list)
+    df['fuel_efficient_sov'] = pd.DataFrame(fuel_eff_list)
+    df['reg_fuel_eff'] = pd.DataFrame(fuel_eff_reg_list)
+    fn_fine()
+    fn_camera_functional(no_of_samples)
+    hov_speed_list, gpv_speed_list = my_lane.fn_compute_avgspeed()
+    df['hov_speed (mph)'] = pd.DataFrame(hov_speed_list)
+    df['gpv_speed (mph)'] = pd.DataFrame(gpv_speed_list)
+    fn_compute_avgtime()
+    hov_pol_emiss_list, gvp_pol_emiss_list = my_lane.fn_compute_pollution()
+    df['gpv_emis'] = pd.DataFrame(gvp_pol_emiss_list)
+    df['hov_emis'] = pd.DataFrame(hov_pol_emiss_list)
 
     # Calculating revenue lost by the state because of the functionality issues with Camera
     df['revenue_lost_per_day'] = df['estimate_fine'] - df['actual_fine']
@@ -331,3 +402,4 @@ if __name__ == '__main__':
     # plt.show()
     # hist3 = df.hist(column='revenue_lost_per_day', bins=10)
     # plt.show()
+
