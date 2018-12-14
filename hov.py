@@ -41,8 +41,7 @@ class Lanes:
         self.df = pd.DataFrame(columns=['peak_hour', 'hov', 'sov', 'gpv', 'fuel_efficient_sov', 'reg_fuel_eff',
                                'camera_functional', 'weather', 'weather_int', 'accident', 'no_of_accidents',
                                'hov_speed (mph)', 'gpv_speed (mph)', 'hov_time', 'gpv_time', 'hov_emis', 'gpv_emis',
-                               'estimate_fine',
-                               'actual_fine', 'revenue_lost_per_day'])
+                               'estimate_fine', 'actual_fine', 'revenue_lost_per_day'])
 
     def rand_gen_pert(self, low, likely, high, confidence=4, samples=10):
         """Produce random numbers according to the 'Modified PERT' distribution.
@@ -340,33 +339,43 @@ if __name__ == '__main__':
     my_lane.df = fn_camera_functional(no_of_sim, my_lane.df)
     my_lane.df = fn_compute_avgtime(my_lane.df)
 
-
-    # Calculating revenue lost by the state because of the functionality issues with Camera
+    # calculating revenue lost by the state because of the functionality issues with Camera
     my_lane.df['revenue_lost_per_day'] = my_lane.df['estimate_fine'] - my_lane.df['actual_fine']
     my_lane.df.to_csv('HOV.csv')
 
-    # OUTPUT
-    # ------------------------------------------------------------------------------------------------------------------
-    print('The below output is considering the hov lane timings and how it consequently affects the general purpose lane - ')
+    # OUTPUT (FINDINGS)
+    print('The below output is considering the hov lane timings and how it consequently affects the general purpose lane - \n')
+
+    print('SPEED')
+    print("-------------------------------------------------------")
     print('The average speed for high occupancy vehicles per day is ' + format(np.mean(my_lane.df['hov_speed (mph)']),'.2f')+' mph')
     print('The average speed for general purpose vehicles per day is ' + format(np.mean(my_lane.df['gpv_speed (mph)']),'.2f')+' mph\n')
 
+    print('TIME')
+    print("-------------------------------------------------------")
     print('The average time taken by high occupancy vehicles to cover a 20 mile stretch is ' + format(np.mean(my_lane.df['hov_time']),'.2f')+' hrs')
     print('The average time taken by general purpose vehicles to cover a 20 mile stretch is ' + format(np.mean(my_lane.df['gpv_time']),'.2f')+' hrs\n')
 
+    print('CO EMISSION')
+    print("-------------------------------------------------------")
     print('The average carbon monoxide emission by high occupancy vehicles is ' + format(np.mean(my_lane.df['hov_emis']),'.2f') + ' grams')
     print('The average carbon monoxide emission by general purpose vehicles is ' + format(np.mean(my_lane.df['gpv_emis']),'.2f') + ' grams\n')
 
+    print('REVENUE EARNED & LOST')
+    print("-------------------------------------------------------")
     print('The average estimated revenue the state should be collecting per day is $' + format(np.mean(my_lane.df['estimate_fine']),'.2f'))
     print('The average actual revenue the state is collecting per day is $' + format(np.mean(my_lane.df['actual_fine']),'.2f'))
     print('The average revenue lost per day by the state is $'+format(np.mean(my_lane.df['revenue_lost_per_day']),'.2f'))
     # ------------------------------------------------------------------------------------------------------------------
 
-    ## Plotting Estimated Fine , Actual Fine and Revenue lost per day in histograms
-    # hist1 = self.df.hist(column='estimate_fine', bins=10)
-    # plt.show()
-    # hist2 = self.df.hist(column='actual_fine', bins=10)
-    # plt.show()
-    # hist3 = self.df.hist(column='revenue_lost_per_day', bins=10)
-    # plt.show()
+    # plot charts to display analytical findings
+    dict_cam = my_lane.df.groupby(['peak_hour'])['hov'].mean().to_dict()
+    plt.bar(dict_cam.keys(), dict_cam.values(), 0.1)
+    plt.title(' Peak Hour Vs Number of HOVs')
+    plt.show()
 
+    plt.hist(my_lane.df['gpv_time'], bins=10, alpha=0.5, label='GPV_Time')
+    plt.hist(my_lane.df['hov_time'], bins=10, alpha=0.5, label='HOV_Time')
+    plt.legend(loc='upper right')
+    plt.title('')
+    plt.show()
