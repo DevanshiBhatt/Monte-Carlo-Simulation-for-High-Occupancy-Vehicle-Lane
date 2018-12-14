@@ -381,7 +381,6 @@ if __name__ == '__main__':
     print('The average revenue lost per day by the state is $'+format(np.mean(df['revenue_lost_per_day']),'.2f'))
     # ------------------------------------------------------------------------------------------------------------------
 
-    doctest.testmod()
     ## Plotting Estimated Fine , Actual Fine and Revenue lost per day in histograms
     # hist1 = df.hist(column='estimate_fine', bins=10)
     # plt.show()
@@ -389,3 +388,6 @@ if __name__ == '__main__':
     # plt.show()
     # hist3 = df.hist(column='revenue_lost_per_day', bins=10)
     # plt.show()
+
+    doctest.testmod()
+
