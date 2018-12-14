@@ -5,10 +5,10 @@
 ## Team Member(s): Aditya Kadrekar | Ankita Pant | Devanshi Bhatt
 
 # Monte Carlo Simulation Scenario & Purpose:
-The purpose of this simulation is to predict the fine that a Single Occupant Vehicle (SOV) will have to pay, under different circumstances, when it enters the High Occupant Vehicle  (HOV) lane. There is an assumption that single occupied vehicles take the HOV lanes (we are randomizing the number of SOV on the HOV lanes based on historical data). For comparison basis, we are also calculating the speed and time taken by high occupancy vehicles & general purpose vehicles (GPV) to cover the same distance. We will also predict the probability of faster/slower highway trips for express transit services like Bus Rapid Transit (BRT) or any high occupancy vehicle. The amount of revenue that the state will earn or lose in a day from the collection of fines is also simulated.
+The purpose of this simulation is to predict the fine that a Single Occupant Vehicle (SOV) will have to pay, under different circumstances, when it enters the High Occupant Vehicle  (HOV) lane. There is an assumption that single occupied vehicles take the HOV lanes (we are randomizing the number of SOV on the HOV lanes based on historical data). For comparison purposes, we are calculating the speed and time taken by high occupancy vehicles & general purpose vehicles (GPV) to cover the same distance. We will also predict the probability of faster/slower highway trips for express transit services like Bus Rapid Transit (BRT) or any high occupancy vehicle. The amount of revenue that the state will earn or lose in a day from the collection of fines is also simulated.
 
 ## Simulation's variables of uncertainty
-There are the variables which are getting randomly generated - accident, no_of_accidents, weather, weather_intensity, camera_functionality, no of HOV vehicles, no of SOV vehicles, no of general purpose vehicles (GPV), hov_speed and gpv_speed. 
+There are the variables which are getting randomly generated - accident, no_of_accidents, weather, weather_intensity, camera_functionality, no of HOV vehicles, no of SOV vehicles, no of general purpose vehicles (GPV), hov_speed and gpv_speed, hov_emission & gpv_emission, estimate_fine, actual_fine and revenue_lost_per_day. 
 
 ## accident:
 Since accidents are very frequent on highways, we are using a boolean value to determine the frequency where True would mean accident has occured and False would mean accident hasn't occured.
@@ -61,6 +61,7 @@ This variable gives us the difference between estimate_fine and actual_fine.
 ## Hypothesis or hypotheses before running the simulation:
 1. All SOV vehicles are required to pay the same fine when they enter into an HOV lane. 
 2. HOV lanes help in reducing the travel time in comparison to general purpose lanes.
+3. High occupancy vehicle reduce carbon monoxide emissions as they maintain a high speed as compared to general purpose vehicle.
 
 ## Assumptions:
 1. At any given time of day, the number of fuel-efficient/hybrid SOV vehicles is 20% of the actual number of SOV vehicles in the HOV lane.
@@ -70,22 +71,21 @@ This variable gives us the difference between estimate_fine and actual_fine.
 5. The distance of the general purpose vehicle lane and high occupancy vehicle is considered to be same i.e 20 miles to get a better estimate of the values for comparison.
 
 ## Analytical Summary of your findings: (e.g. Did you adjust the scenario based on previous simulation outcomes?  What are the management decisions one could make from your simulation's output, etc.)
-This is a basic summary of what we plan to analyze through our findings
-1. Is there an average loss, in revenue, incured by the state because of the fiel-efficient or hybrid vehicles that are registered to       travel on the HOV lane? If so, how much is the loss? 
-2. Is there an advantage of using the HOV lane in terms of pollution? 
-3. Are HOV lanes really benefitting people in reducing their travel time? 
-4. Does the state earn a revenue which is greater than the amount it spends for installing the cameras throughout the HOV lane?  
+This is a basic summary of what we plan to analyze through our findings:
+1. What is the average loss, in revenue, incured by the state because of the fiel-efficient or hybrid vehicles that are registered to travel on the HOV lane? If so, how much is the loss? 
+2. Are HOV lanes really benefitting people in reducing their travel time in comparison to a general purpose lane? 
+3. Is there an advantage of using the HOV lane in terms of pollution over GPV lane? 
 
 Important management decisions that could be made out of the findings of the simulation:
-1. From the total revenue earned by using cameras on the HOV lanes for fines, the state can take a decision regarding whether or not the installation of cameras will be fruitful.
-2. The state evaluate the performance of the HOV lanes in terms of speed and travelling time to predict if there will be a potential pressure to convert the under performing HOV lanes back to general-purpose lanes.
-3. The amount of pollution caused due to use of HOV lanes is quite lesser than general purpose lanes. So the state can encourage the use of HOV lanes. 
+1. The average loss, in revenue, incured by the state because of the fiel-efficient or hybrid vehicles that are registered to travel on the HOV lane is $86133.24.
+2. HOV lanes take almost half of the time of a GPV lane thus benefitting people in reducing their travel time and encouraging car pooling in the process. It takes 0.27 hrs on an average for a HOV in comparison to 0.46 hrs for a GPV to cover the same distance.
+3. Yes, there is advantage in using the HOV lane over GPV lane when it comes to emission of carbon monoxide. It's observed that HOV emit 135.29 grams of carbon monoxide per vehicle over a 20 mile stretch as they maintain a high average speed in comparison to general purpose vehicle who emit 184.81 grams in the same stretch. It's way over the acceptable limit and thus the state should encourage the use of HOV lanes.
 
 
 ## Instructions on how to use the program:
-- Make sure you are using Python 3.6 and above.
-- Download and run the python file.
-- There will be a prompt to enter the number of samples you want to use for performing the simualation. 
+1. Make sure you are using Python 3.6 and above.
+2. Download and run the python file.
+3. There will be a prompt to enter the number of samples you want to use for performing the simualation. 
 
 ## All Sources Used:
 http://people.eecs.berkeley.edu/~varaiya/papers_ps.dir/accessF05v2.pdf
