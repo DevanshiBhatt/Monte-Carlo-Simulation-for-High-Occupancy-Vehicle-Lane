@@ -70,10 +70,18 @@ This variable gives us the difference between estimate_fine and actual_fine.
 5. The distance of the general purpose vehicle lane and high occupancy vehicle is considered to be same i.e 20 miles to get a better estimate of the values for comparison.
 
 ## Analytical Summary of your findings: (e.g. Did you adjust the scenario based on previous simulation outcomes?  What are the management decisions one could make from your simulation's output, etc.)
-This is a basic summary of what we plan to analyze through our findings (subject to change)
-- Is there an increase/decrease in the single occupancy vehicle on the HOV lanes on the basis of fines they are paying? How much loss does the state incur in terms of the revenue earned from the fines collected from the hybrid SOV vehicles?
-- Are HOV lanes really benefitting people in reducing their travel time? Is there a potential pressure to convert under performing HOV lanes to general-purpose use?
-- Does the state earn a revenue which is greater than the amount it spends for installing the cameras throughout the HOV lane?  
+This is a basic summary of what we plan to analyze through our findings
+1. Is there an average loss, in revenue, incured by the state because of the fiel-efficient or hybrid vehicles that are registered to       travel on the HOV lane? If so, how much is the loss? 
+2. Is there an advantage of using the HOV lane in terms of pollution? 
+3. Are HOV lanes really benefitting people in reducing their travel time? 
+4. Does the state earn a revenue which is greater than the amount it spends for installing the cameras throughout the HOV lane?  
+
+Important management decisions that could be made out of the findings of the simulation:
+1. From the total revenue earned by using cameras on the HOV lanes for fines, the state can take a decision regarding whether or not the installation of cameras will be fruitful.
+2. The state evaluate the performance of the HOV lanes in terms of speed and travelling time to predict if there will be a potential pressure to convert the under performing HOV lanes back to general-purpose lanes.
+3. The amount of pollution caused due to use of HOV lanes is quite lesser than general purpose lanes. So the state can encourage the use of HOV lanes. 
+
+
 ## Instructions on how to use the program:
 - Make sure you are using Python 3.6 and above.
 - Download and run the python file.
