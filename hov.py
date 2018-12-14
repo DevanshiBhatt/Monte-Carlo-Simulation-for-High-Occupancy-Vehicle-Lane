@@ -18,12 +18,9 @@ obtained from various sources that are cited in the README document of github re
 """
 
 from random import choice, randint, choices, seed
-#from collections import Counter, defaultdict
-#import typing
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import doctest
 
 class Lanes:
 
@@ -81,8 +78,7 @@ class Lanes:
         Seasons are randomly chosen for every sample with weights assigned to each season.
         'Modified PERT' distribution is used for the random selection of weather intensity.
 
-        :param no_of_samples: Number of samples the user wants to consider for the simulation
-        :param data: Dataframe with existing HOV lanes data
+        :param p: Number of simulations
         :return: List with all weather intensities
         """
         weather_int_list = self.weather_int_list
@@ -111,8 +107,7 @@ class Lanes:
         'Modified PERT' distribution is used for the random selection of no. of accidents with
         minimum 1 accident, maximum 10 accidents and most likely 5 accidents.
 
-        :param no_of_samples: Number of samples the user wants to consider for the simulation
-        :param data: Dataframe with existing HOV lanes data
+        :param p: Number of simulations
         :return: List with number of accidents
         """
 
@@ -129,7 +124,7 @@ class Lanes:
 
         return no_of_accidents_list
 
-    def fn_vehicles(self, p:int):
+    def fn_vehicles(self, p:int) -> tuple:
         """
         This function generates random values for the number of HOV and SOV vehicles on the HOV lane.
         It also randomizes teh number of vehicles in general purpose lane.
@@ -138,17 +133,15 @@ class Lanes:
         It is assumed that 70% of fuel-efficient SOV vehicles are registered to drive on the HOV lane.
         'Modified PERT' distribution is used for the random number generation.
 
-        :param no_of_samples: Number of samples the user wants to consider for the simulation
-        :param data: Dataframe with existing HOV lanes data
+        :param p: Number of simulations
         :return: Tuple of lists of number of HOV vehicles, number of SOV vehicles, number of
         fuel-efficient and registered fuel-efficient vehicles and number of vehicles on general purpose lane.
 
         >>> np.random.seed(1)
         >>> seed(1)
-        >>> no_of_samples = 5
         >>> p=5
         >>> my_lane = Lanes()
-        >>> my_lane.fn_vehicles(no_of_samples)
+        >>> my_lane.fn_vehicles(p)
         ([1544.0, 1220.0, 1088.0, 1420.0, 1391.0], [213.0, 118.0, 106.0, 216.0, 195.0], [43.0, 24.0, 21.0, 43.0, 39.0], [30.0, 17.0, 15.0, 30.0, 27.0], [1216.0, 1989.0, 1910.0, 1303.0, 1301.0])
         """
 
@@ -190,20 +183,19 @@ class Lanes:
 
         return hov_list, sov_list, fuel_eff_list, fuel_eff_reg_list, gpv_list
 
-    def fn_compute_avgspeed(self):
+    def fn_compute_avgspeed(self) -> tuple:
         """
         This function randomizes the speed of vehicles on both, HOV and general purpose lanes.
         The speed of vehicles depends on weather, number of accidents and the number of vehicles in each lane.
         'Modified PERT' distribution is used for the random generation of speed.
 
-        :param data: Dataframe with existing HOV lanes data
         :return: Tuple of lists with average speeds of HOV vehicles and vehicles on gen. purpose lanes
 
         >>> np.random.seed(1)
         >>> seed(1)
-        >>> no_of_samples = 5
+        >>> no_of_sim = 5
         >>> my_lane = Lanes()
-        >>> my_lane.fn_vehicles(no_of_samples)
+        >>> my_lane.fn_vehicles(no_of_sim)
         ([1544.0, 1220.0, 1088.0, 1420.0, 1391.0], [213.0, 118.0, 106.0, 216.0, 195.0], [43.0, 24.0, 21.0, 43.0, 39.0], [30.0, 17.0, 15.0, 30.0, 27.0], [1216.0, 1989.0, 1910.0, 1303.0, 1301.0])
         >>> my_lane.fn_compute_avgspeed()
         ([79.34, 78.03, 79.47, 79.91, 80.41], [48.67, 45.66, 45.43, 44.36, 45.95])
@@ -232,13 +224,12 @@ class Lanes:
         return hov_speed_list, gpv_speed_list
 
 
-    def fn_compute_emission(self):
+    def fn_compute_emission(self) -> tuple:
         """
         This function calculates the carbon monoxide emissions (in grams) for both
         HOV & general purpose vehicle for a 20 mile stretch. This value is calculated
         using data from a research article based on advantages of hov lanes.
 
-        :param data: Dataframe with existing HOV lanes data
         :return: Tuple of lists with total emissions on HOV lane and gen.purpose lanes
         """
 
@@ -284,12 +275,12 @@ def fn_fine(data):
     data['estimate_fine'] = (data['sov'] - data['reg_fuel_eff']) * 450 * 4
     return data
 
-def fn_camera_functional(p, data):
+def fn_camera_functional(p: int, data):
     """
     Calculating actual fine earned by the state depending on the camera functionality.
     It is assumed that the cameras are functional 80% of the time.
 
-    :param p: User input for number of samples
+    :param p: Number of simulations
     :param data: Dataframe with existing HOV lanes data
     :return: Dataframe with actual calculated fine
     """
@@ -320,30 +311,17 @@ def fn_compute_avgtime(data):
 
 if __name__ == '__main__':
 
-    samples_list=list(range(50, 100000, 50 ))
-    #print(samples_list)
-
-    try:
-        print('More the number of samples for simulation, better is the accuracy of predicted values\n')
-        no_of_samples = int(input('Enter the number of samples as a multiple of 50: '))
-
-        if no_of_samples in samples_list:
-            pass
-        else:
-            print('Invalid number')
-
-    except Exception as e:
-        print(e)
-
+    print('More the number of simulations, better is the accuracy of predicted values')
+    no_of_sim = int(input('Enter the number of simulations: '))
 
     my_lane = Lanes()
-    weather_int_list = my_lane.fn_weather_int(no_of_samples)
+    weather_int_list = my_lane.fn_weather_int(no_of_sim)
     my_lane.df['weather_int'] = pd.DataFrame(weather_int_list)
 
-    no_of_accidents_list = my_lane.fn_num_accidents(no_of_samples)
+    no_of_accidents_list = my_lane.fn_num_accidents(no_of_sim)
     my_lane.df['no_of_accidents'] = pd.DataFrame(no_of_accidents_list)
 
-    hov_list, sov_list, fuel_eff_list, fuel_eff_reg_list, gpv_list = my_lane.fn_vehicles(no_of_samples)
+    hov_list, sov_list, fuel_eff_list, fuel_eff_reg_list, gpv_list = my_lane.fn_vehicles(no_of_sim)
     my_lane.df['hov'] = pd.DataFrame(hov_list)
     my_lane.df['sov'] = pd.DataFrame(sov_list)
     my_lane.df['gpv'] = pd.DataFrame(gpv_list)
@@ -358,9 +336,9 @@ if __name__ == '__main__':
     my_lane.df['gpv_emis'] = pd.DataFrame(gpv_pol_emiss_list)
     my_lane.df['hov_emis'] = pd.DataFrame(hov_pol_emiss_list)
 
-    my_lane.df=fn_fine(my_lane.df)
-    my_lane.df=fn_camera_functional(no_of_samples, my_lane.df)
-    my_lane.df=fn_compute_avgtime(my_lane.df)
+    my_lane.df = fn_fine(my_lane.df)
+    my_lane.df = fn_camera_functional(no_of_sim, my_lane.df)
+    my_lane.df = fn_compute_avgtime(my_lane.df)
 
 
     # Calculating revenue lost by the state because of the functionality issues with Camera
@@ -370,7 +348,6 @@ if __name__ == '__main__':
     # OUTPUT
     # ------------------------------------------------------------------------------------------------------------------
     print('The below output is considering the hov lane timings and how it consequently affects the general purpose lane - ')
-    #temp[count_row_num].append(format(total_distance, '.2f'))
     print('The average speed for high occupancy vehicles per day is ' + format(np.mean(my_lane.df['hov_speed (mph)']),'.2f')+' mph')
     print('The average speed for general purpose vehicles per day is ' + format(np.mean(my_lane.df['gpv_speed (mph)']),'.2f')+' mph\n')
 
