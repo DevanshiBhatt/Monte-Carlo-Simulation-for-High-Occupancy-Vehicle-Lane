@@ -5,7 +5,7 @@
 ## Team Member(s): Aditya Kadrekar | Ankita Pant | Devanshi Bhatt
 
 # Monte Carlo Simulation Scenario & Purpose:
-The purpose of this simulation is to predict the fine that a Single Occupant Vehicle (SOV) will have to pay, under different circumstances, when it enters the High Occupant Vehicle  (HOV) lane. There is an assumption that single occupied vehicles take the HOV lanes (we are randomizing the number of SOV on the HOV lanes based on historical data). We will also predict the probability of faster/slower highway trips for express transit services like Bus Rapid Transit (BRT) or any high occupancy vehicle. The amount of revenue that the state will earn or lose in a day from the collection of fines is also simulated.
+The purpose of this simulation is to predict the fine that a Single Occupant Vehicle (SOV) will have to pay, under different circumstances, when it enters the High Occupant Vehicle  (HOV) lane. There is an assumption that single occupied vehicles take the HOV lanes (we are randomizing the number of SOV on the HOV lanes based on historical data). For comparison basis, we are also calculating the speed and time taken by high occupancy vehicles & general purpose vehicles (GPV) to cover the same distance. We will also predict the probability of faster/slower highway trips for express transit services like Bus Rapid Transit (BRT) or any high occupancy vehicle. The amount of revenue that the state will earn or lose in a day from the collection of fines is also simulated.
 
 ## Simulation's variables of uncertainty
 There are the variables which are getting randomly generated - accident, no_of_accidents, weather, weather_intensity, camera_functionality, no of HOV vehicles, no of SOV vehicles, no of general purpose vehicles (GPV), hov_speed and gpv_speed. 
@@ -75,9 +75,9 @@ This is a basic summary of what we plan to analyze through our findings (subject
 - Are HOV lanes really benefitting people in reducing their travel time? Is there a potential pressure to convert under performing HOV lanes to general-purpose use?
 - Does the state earn a revenue which is greater than the amount it spends for installing the cameras throughout the HOV lane?  
 ## Instructions on how to use the program:
-Make sure you are using Python 3.6 and above.
-Download and run the python file.
-There will be a prompt to enter the number of samples you want to use for performing the simualation. 
+- Make sure you are using Python 3.6 and above.
+- Download and run the python file.
+- There will be a prompt to enter the number of samples you want to use for performing the simualation. 
 
 ## All Sources Used:
 http://people.eecs.berkeley.edu/~varaiya/papers_ps.dir/accessF05v2.pdf
