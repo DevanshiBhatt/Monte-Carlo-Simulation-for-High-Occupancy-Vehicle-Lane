@@ -41,6 +41,11 @@ class Lanes:
         self.hov_pol_emiss_list = []
         self.gpv_pol_emiss_list = []
 
+        self.df = pd.DataFrame(columns=['peak_hour', 'hov', 'sov', 'gpv', 'fuel_efficient_sov', 'reg_fuel_eff',
+                               'camera_functional', 'weather', 'weather_int', 'accident', 'no_of_accidents',
+                               'hov_speed (mph)', 'gpv_speed (mph)', 'hov_time', 'gpv_time', 'hov_emis', 'gpv_emis',
+                               'estimate_fine',
+                               'actual_fine', 'revenue_lost_per_day'])
 
     def rand_gen_pert(self, low, likely, high, confidence=4, samples=10):
         """Produce random numbers according to the 'Modified PERT' distribution.
@@ -57,15 +62,18 @@ class Lanes:
         Formulas from "Modified Pert Simulation" by Paulo Buchsbaum.
         """
 
-        mean = (low + confidence * likely + high) / (confidence + 2.0)
-        a = (mean - low) / (high - low) * (confidence + 2)
-        b = ((confidence + 1) * high - low - confidence * likely) / (high - low)
+        if low != None and likely != None and high != None:
+            mean = (low + confidence * likely + high) / (confidence + 2.0)
+            a = (mean - low) / (high - low) * (confidence + 2)
+            b = ((confidence + 1) * high - low - confidence * likely) / (high - low)
 
-        beta = np.random.beta(a, b, samples)
-        beta = beta * (high - low) + low
-        return beta
+            beta = np.random.beta(a, b, samples)
+            beta = beta * (high - low) + low
+            return beta
+        else:
+            raise Exception('Paramters are null')
 
-    def fn_weather_int(self, p:int, data ) -> list:
+    def fn_weather_int(self, p:int) -> list:
         """
         This function defines the weather and its intensity on a scale of 1 to 10
         with 10 being the worst weather.
@@ -78,9 +86,9 @@ class Lanes:
         :return: List with all weather intensities
         """
         weather_int_list = self.weather_int_list
-        data['weather'] = choices(['Summer', 'Winter', 'Rains'], [0.5, 0.3, 0.2], k=p)
+        self.df['weather'] = choices(['Summer', 'Winter', 'Rains'], [0.5, 0.3, 0.2], k=p)
 
-        for season in data['weather']:
+        for season in self.df['weather']:
             if season == 'Summer':
                 #weather in Summer does not affect the performance of an HOV lane.
                 #so the intensty is set to zero in this case.
@@ -96,7 +104,7 @@ class Lanes:
 
         return weather_int_list
 
-    def fn_num_accidents(self, p:int, data)-> list:
+    def fn_num_accidents(self, p:int)-> list:
         """
         This function checks for occurrence of an accident on the HOV lane.
         If yes, then the number of accidents per day has been randomized.
@@ -109,9 +117,9 @@ class Lanes:
         """
 
         no_of_accidents_list = self.no_of_accidents_list
-        data['accident'] = choices(['Yes', 'No'], [0.6, 0.4], k=p)
+        self.df['accident'] = choices(['Yes', 'No'], [0.6, 0.4], k=p)
 
-        for value in data['accident']:
+        for value in self.df['accident']:
             if value == 'No':
                 no_of_accidents = 0
             else:
@@ -121,7 +129,7 @@ class Lanes:
 
         return no_of_accidents_list
 
-    def fn_vehicles(self, p:int, data):
+    def fn_vehicles(self, p:int):
         """
         This function generates random values for the number of HOV and SOV vehicles on the HOV lane.
         It also randomizes teh number of vehicles in general purpose lane.
@@ -137,12 +145,11 @@ class Lanes:
 
         >>> np.random.seed(1)
         >>> seed(1)
+        >>> no_of_samples = 5
         >>> p=5
-        >>> data = df
         >>> my_lane = Lanes()
-        >>> my_lane.fn_vehicles(no_of_samples, data)
-        ([1544.0, 1220.0, 1088.0, 1420.0, 1391.0, 1438.0, 1104.0, 1122.0, 1433.0, 1400.0], [213.0, 118.0, 106.0, 216.0, 195.0, 224.0, 112.0, 99.0, 226.0, 200.0], [43.0, 24.0, 21.0, 43.0, 39.0, 45.0, 22.0, 20.0, 45.0, 40.0], [30.0, 17.0, 15.0, 30.0, 27.0, 31.0, 16.0, 14.0, 32.0, 28.0], [1216.0, 1989.0, 1910.0, 1303.0, 1301.0, 1215.0, 2012.0, 2006.0, 1219.0, 1273.0])
-
+        >>> my_lane.fn_vehicles(no_of_samples)
+        ([1544.0, 1220.0, 1088.0, 1420.0, 1391.0], [213.0, 118.0, 106.0, 216.0, 195.0], [43.0, 24.0, 21.0, 43.0, 39.0], [30.0, 17.0, 15.0, 30.0, 27.0], [1216.0, 1989.0, 1910.0, 1303.0, 1301.0])
         """
 
         hov_list = self.hov_list
@@ -152,11 +159,11 @@ class Lanes:
         fuel_eff_reg_list = self.fuel_eff_reg_list
 
         # Randomizing a given hour of the day to be peak with 50% chances
-        data['peak_hour'] = choices(['Yes', 'No'], [0.5, 0.5], k=p)
+        self.df['peak_hour'] = choices(['Yes', 'No'], [0.5, 0.5], k=p)
         #hov_list, sov_list, fuel_eff_list, fuel_eff_reg_list, gpv_list = ([] for i in range(5))
 
         # Generating random values for number of SOV , HOV based on online statistical data
-        for i in data['peak_hour']:
+        for i in self.df['peak_hour']:
 
             #there are more number of vehicles in peak hours than in non-peak hours
             if i == 'Yes':
@@ -183,7 +190,7 @@ class Lanes:
 
         return hov_list, sov_list, fuel_eff_list, fuel_eff_reg_list, gpv_list
 
-    def fn_compute_avgspeed(self, data):
+    def fn_compute_avgspeed(self):
         """
         This function randomizes the speed of vehicles on both, HOV and general purpose lanes.
         The speed of vehicles depends on weather, number of accidents and the number of vehicles in each lane.
@@ -194,17 +201,19 @@ class Lanes:
 
         >>> np.random.seed(1)
         >>> seed(1)
-        >>> data=df
+        >>> no_of_samples = 5
         >>> my_lane = Lanes()
-        >>> my_lane.fn_compute_avgspeed(data)
-        ([81.77, 78.29, 80.53, 46.84, 78.33, 79.8, 78.34, 80.89, 52.22, 79.35], [46.59, 48.5, 46.86, 35.38, 45.6, 48.03, 43.58, 46.07, 34.23, 46.39])
+        >>> my_lane.fn_vehicles(no_of_samples)
+        ([1544.0, 1220.0, 1088.0, 1420.0, 1391.0], [213.0, 118.0, 106.0, 216.0, 195.0], [43.0, 24.0, 21.0, 43.0, 39.0], [30.0, 17.0, 15.0, 30.0, 27.0], [1216.0, 1989.0, 1910.0, 1303.0, 1301.0])
+        >>> my_lane.fn_compute_avgspeed()
+        ([79.34, 78.03, 79.47, 79.91, 80.41], [48.67, 45.66, 45.43, 44.36, 45.95])
 
         """
 
         hov_speed_list = self.hov_speed_list
         gpv_speed_list = self.gpv_speed_list
 
-        for index, row in data.iterrows():
+        for index, row in self.df.iterrows():
             if (row['weather'] == 'Winter' or row['weather'] == 'Rains') and row['weather_int'] > 3 \
                     and row['no_of_accidents'] > 3 and (row['hov'] > 1400 or row['gpv'] < 1500):
 
@@ -223,7 +232,7 @@ class Lanes:
         return hov_speed_list, gpv_speed_list
 
 
-    def fn_compute_emission(self, data):
+    def fn_compute_emission(self):
         """
         This function calculates the carbon monoxide emissions (in grams) for both
         HOV & general purpose vehicle for a 20 mile stretch. This value is calculated
@@ -237,7 +246,7 @@ class Lanes:
         gpv_pol_emiss_list = self.gpv_pol_emiss_list
 
         # emissions in a general purpose lane
-        for index, row in data.iterrows():
+        for index, row in self.df.iterrows():
             if (row['gpv_speed (mph)']) < 40:
                 # 211 grams of CO is emitted when the speed of vehicle is less than 40 mph
                 gpv_pol_emiss = 211
@@ -248,7 +257,7 @@ class Lanes:
                 gpv_pol_emiss_list.append(gpv_pol_emiss)
 
         #emissions in the HOV lane
-        for index, row in data.iterrows():
+        for index, row in self.df.iterrows():
             if (row['hov_speed (mph)']) < 60:
                 #151 grams of CO emitted when speed of vehicle on an HOV lane is less than 60mph
                 hov_pol_emiss = 151
@@ -288,7 +297,7 @@ def fn_camera_functional(p, data):
     data['camera_functional'] = choices(['Yes', 'No'], [0.8, 0.2], k=p)
 
     # Plotting distribution of Functionality of Camera
-    # plt.hist(df['camera_functional'], density=False)
+    # plt.hist(self.df['camera_functional'], density=False)
     # plt.title('Distribution of Camera Functionality')
 
     data['actual_fine'] = np.where(data['camera_functional'] == 'Yes', (choice([0.8, 1]) * (data['sov'] - data['reg_fuel_eff']) * 450 * 4),
@@ -326,68 +335,61 @@ if __name__ == '__main__':
     except Exception as e:
         print(e)
 
-    df = pd.DataFrame(columns=['peak_hour', 'hov', 'sov', 'gpv', 'fuel_efficient_sov', 'reg_fuel_eff',
-                               'camera_functional', 'weather', 'weather_int', 'accident', 'no_of_accidents',
-                               'hov_speed (mph)', 'gpv_speed (mph)', 'hov_time', 'gpv_time', 'hov_emis', 'gpv_emis', 'estimate_fine',
-                               'actual_fine', 'revenue_lost_per_day'])
 
     my_lane = Lanes()
+    weather_int_list = my_lane.fn_weather_int(no_of_samples)
+    my_lane.df['weather_int'] = pd.DataFrame(weather_int_list)
 
-    weather_int_list = my_lane.fn_weather_int(no_of_samples, df)
-    df['weather_int'] = pd.DataFrame(weather_int_list)
+    no_of_accidents_list = my_lane.fn_num_accidents(no_of_samples)
+    my_lane.df['no_of_accidents'] = pd.DataFrame(no_of_accidents_list)
 
-    no_of_accidents_list = my_lane.fn_num_accidents(no_of_samples, df)
-    df['no_of_accidents'] = pd.DataFrame(no_of_accidents_list)
+    hov_list, sov_list, fuel_eff_list, fuel_eff_reg_list, gpv_list = my_lane.fn_vehicles(no_of_samples)
+    my_lane.df['hov'] = pd.DataFrame(hov_list)
+    my_lane.df['sov'] = pd.DataFrame(sov_list)
+    my_lane.df['gpv'] = pd.DataFrame(gpv_list)
+    my_lane.df['fuel_efficient_sov'] = pd.DataFrame(fuel_eff_list)
+    my_lane.df['reg_fuel_eff'] = pd.DataFrame(fuel_eff_reg_list)
 
-    hov_list, sov_list, fuel_eff_list, fuel_eff_reg_list, gpv_list = my_lane.fn_vehicles(no_of_samples, df)
-    df['hov'] = pd.DataFrame(hov_list)
-    df['sov'] = pd.DataFrame(sov_list)
-    df['gpv'] = pd.DataFrame(gpv_list)
-    df['fuel_efficient_sov'] = pd.DataFrame(fuel_eff_list)
-    df['reg_fuel_eff'] = pd.DataFrame(fuel_eff_reg_list)
+    hov_speed_list, gpv_speed_list = my_lane.fn_compute_avgspeed()
+    my_lane.df['hov_speed (mph)'] = pd.DataFrame(hov_speed_list)
+    my_lane.df['gpv_speed (mph)'] = pd.DataFrame(gpv_speed_list)
 
-    hov_speed_list, gpv_speed_list = my_lane.fn_compute_avgspeed(df)
-    df['hov_speed (mph)'] = pd.DataFrame(hov_speed_list)
-    df['gpv_speed (mph)'] = pd.DataFrame(gpv_speed_list)
+    hov_pol_emiss_list, gpv_pol_emiss_list = my_lane.fn_compute_emission()
+    my_lane.df['gpv_emis'] = pd.DataFrame(gpv_pol_emiss_list)
+    my_lane.df['hov_emis'] = pd.DataFrame(hov_pol_emiss_list)
 
-    hov_pol_emiss_list, gpv_pol_emiss_list = my_lane.fn_compute_emission(df)
-    df['gpv_emis'] = pd.DataFrame(gpv_pol_emiss_list)
-    df['hov_emis'] = pd.DataFrame(hov_pol_emiss_list)
-
-    df=fn_fine(df)
-    df=fn_camera_functional(no_of_samples, df)
-    df=fn_compute_avgtime(df)
+    my_lane.df=fn_fine(my_lane.df)
+    my_lane.df=fn_camera_functional(no_of_samples, my_lane.df)
+    my_lane.df=fn_compute_avgtime(my_lane.df)
 
 
     # Calculating revenue lost by the state because of the functionality issues with Camera
-    df['revenue_lost_per_day'] = df['estimate_fine'] - df['actual_fine']
-    df.to_csv('HOV.csv')
+    my_lane.df['revenue_lost_per_day'] = my_lane.df['estimate_fine'] - my_lane.df['actual_fine']
+    my_lane.df.to_csv('HOV.csv')
 
     # OUTPUT
     # ------------------------------------------------------------------------------------------------------------------
     print('The below output is considering the hov lane timings and how it consequently affects the general purpose lane - ')
     #temp[count_row_num].append(format(total_distance, '.2f'))
-    print('The average speed for high occupancy vehicles per day is ' + format(np.mean(df['hov_speed (mph)']),'.2f')+' mph')
-    print('The average speed for general purpose vehicles per day is ' + format(np.mean(df['gpv_speed (mph)']),'.2f')+' mph\n')
+    print('The average speed for high occupancy vehicles per day is ' + format(np.mean(my_lane.df['hov_speed (mph)']),'.2f')+' mph')
+    print('The average speed for general purpose vehicles per day is ' + format(np.mean(my_lane.df['gpv_speed (mph)']),'.2f')+' mph\n')
 
-    print('The average time taken by high occupancy vehicles to cover a 20 mile stretch is ' + format(np.mean(df['hov_time']),'.2f')+' hrs')
-    print('The average time taken by general purpose vehicles to cover a 20 mile stretch is ' + format(np.mean(df['gpv_time']),'.2f')+' hrs\n')
+    print('The average time taken by high occupancy vehicles to cover a 20 mile stretch is ' + format(np.mean(my_lane.df['hov_time']),'.2f')+' hrs')
+    print('The average time taken by general purpose vehicles to cover a 20 mile stretch is ' + format(np.mean(my_lane.df['gpv_time']),'.2f')+' hrs\n')
 
-    print('The average carbon monoxide emission by high occupancy vehicles is ' + format(np.mean(df['hov_emis']),'.2f') + ' grams')
-    print('The average carbon monoxide emission by general purpose vehicles is ' + format(np.mean(df['gpv_emis']),'.2f') + ' grams\n')
+    print('The average carbon monoxide emission by high occupancy vehicles is ' + format(np.mean(my_lane.df['hov_emis']),'.2f') + ' grams')
+    print('The average carbon monoxide emission by general purpose vehicles is ' + format(np.mean(my_lane.df['gpv_emis']),'.2f') + ' grams\n')
 
-    print('The average estimated revenue the state should be collecting per day is $' + format(np.mean(df['estimate_fine']),'.2f'))
-    print('The average actual revenue the state is collecting per day is $' + format(np.mean(df['actual_fine']),'.2f'))
-    print('The average revenue lost per day by the state is $'+format(np.mean(df['revenue_lost_per_day']),'.2f'))
+    print('The average estimated revenue the state should be collecting per day is $' + format(np.mean(my_lane.df['estimate_fine']),'.2f'))
+    print('The average actual revenue the state is collecting per day is $' + format(np.mean(my_lane.df['actual_fine']),'.2f'))
+    print('The average revenue lost per day by the state is $'+format(np.mean(my_lane.df['revenue_lost_per_day']),'.2f'))
     # ------------------------------------------------------------------------------------------------------------------
 
     ## Plotting Estimated Fine , Actual Fine and Revenue lost per day in histograms
-    # hist1 = df.hist(column='estimate_fine', bins=10)
+    # hist1 = self.df.hist(column='estimate_fine', bins=10)
     # plt.show()
-    # hist2 = df.hist(column='actual_fine', bins=10)
+    # hist2 = self.df.hist(column='actual_fine', bins=10)
     # plt.show()
-    # hist3 = df.hist(column='revenue_lost_per_day', bins=10)
+    # hist3 = self.df.hist(column='revenue_lost_per_day', bins=10)
     # plt.show()
-
-    doctest.testmod()
 
