@@ -286,10 +286,6 @@ def fn_camera_functional(p: int, data):
 
     data['camera_functional'] = choices(['Yes', 'No'], [0.8, 0.2], k=p)
 
-    # Plotting distribution of Functionality of Camera
-    # plt.hist(self.df['camera_functional'], density=False)
-    # plt.title('Distribution of Camera Functionality')
-
     data['actual_fine'] = np.where(data['camera_functional'] == 'Yes', (choice([0.8, 1]) * (data['sov'] - data['reg_fuel_eff']) * 450 * 4),
                                  0)
     return data
