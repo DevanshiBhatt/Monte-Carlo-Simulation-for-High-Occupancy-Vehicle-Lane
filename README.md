@@ -84,7 +84,7 @@ Important management decisions that could be made out of the findings of the sim
 
 ## Instructions on how to use the program:
 1. Make sure you are using Python 3.6 and above.
-2. Download and run the python file.
+2. Download and run the python file (hov.py)
 3. There will be a prompt to enter the number of samples you want to use for performing the simualation. 
 
 ## All Sources Used:
