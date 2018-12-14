@@ -19,7 +19,7 @@ obtained from various sources that are cited in the README document of github re
 
 from random import choice, randint, choices, seed
 #from collections import Counter, defaultdict
-import typing
+#import typing
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -28,12 +28,19 @@ import doctest
 class Lanes:
 
     def __init__(self):
-        self.num_sov = 0
-        self.num_hov = 0
-        self.weather=''
-        self.weather_int=0
-        self.accident=''
-        self.accident_intensity=int
+
+        self.weather_int_list =[]
+        self.no_of_accidents_list =[]
+        self.hov_list =[]
+        self.sov_list = []
+        self.gpv_list = []
+        self.fuel_eff_list = []
+        self.fuel_eff_reg_list = []
+        self.hov_speed_list = []
+        self.gpv_speed_list = []
+        self.hov_pol_emiss_list = []
+        self.gpv_pol_emiss_list = []
+
 
     def rand_gen_pert(self, low, likely, high, confidence=4, samples=10):
         """Produce random numbers according to the 'Modified PERT' distribution.
@@ -70,9 +77,8 @@ class Lanes:
         :param data: Dataframe with existing HOV lanes data
         :return: List with all weather intensities
         """
-
+        weather_int_list = self.weather_int_list
         data['weather'] = choices(['Summer', 'Winter', 'Rains'], [0.5, 0.3, 0.2], k=p)
-        weather_int_list=[]
 
         for season in data['weather']:
             if season == 'Summer':
@@ -102,8 +108,8 @@ class Lanes:
         :return: List with number of accidents
         """
 
+        no_of_accidents_list = self.no_of_accidents_list
         data['accident'] = choices(['Yes', 'No'], [0.6, 0.4], k=p)
-        no_of_accidents_list = []
 
         for value in data['accident']:
             if value == 'No':
@@ -139,9 +145,15 @@ class Lanes:
 
         """
 
+        hov_list = self.hov_list
+        sov_list = self.sov_list
+        gpv_list = self.gpv_list
+        fuel_eff_list = self.fuel_eff_list
+        fuel_eff_reg_list = self.fuel_eff_reg_list
+
         # Randomizing a given hour of the day to be peak with 50% chances
         data['peak_hour'] = choices(['Yes', 'No'], [0.5, 0.5], k=p)
-        hov_list, sov_list, fuel_eff_list, fuel_eff_reg_list, fuel_eff_non_reg_list, gpv_list = ([] for i in range(6))
+        #hov_list, sov_list, fuel_eff_list, fuel_eff_reg_list, gpv_list = ([] for i in range(5))
 
         # Generating random values for number of SOV , HOV based on online statistical data
         for i in data['peak_hour']:
@@ -184,31 +196,34 @@ class Lanes:
         >>> seed(1)
         >>> data=df
         >>> my_lane = Lanes()
-        >>> my_lane.fn_compute_avgspeed(df)
+        >>> my_lane.fn_compute_avgspeed(data)
         ([81.77, 78.29, 80.53, 46.84, 78.33, 79.8, 78.34, 80.89, 52.22, 79.35], [46.59, 48.5, 46.86, 35.38, 45.6, 48.03, 43.58, 46.07, 34.23, 46.39])
 
         """
 
-        hov_speed_list = []
-        gpv_speed_list = []
+        hov_speed_list = self.hov_speed_list
+        gpv_speed_list = self.gpv_speed_list
 
         for index, row in data.iterrows():
             if (row['weather'] == 'Winter' or row['weather'] == 'Rains') and row['weather_int'] > 3 \
                     and row['no_of_accidents'] > 3 and (row['hov'] > 1400 or row['gpv'] < 1500):
-                speed = np.around(np.median(self.rand_gen_pert(35, 45, 75, samples=10)), decimals=2)
+
+                hov_speed = np.around(np.median(self.rand_gen_pert(35, 45, 75, samples=10)), decimals=2)
+                hov_speed_list.append(hov_speed)
+
                 gpv_speed = np.around(np.median(self.rand_gen_pert(25, 35, 50, samples=10)), decimals=2)
-                hov_speed_list.append(speed)
                 gpv_speed_list.append(gpv_speed)
+
             else:
-                speed = np.around(np.median(self.rand_gen_pert(70, 80, 85, samples=10)), decimals=2)
+                hov_speed = np.around(np.median(self.rand_gen_pert(70, 80, 85, samples=10)), decimals=2)
                 gpv_speed = np.around(np.median(self.rand_gen_pert(35, 45, 60, samples=10)), decimals=2)
-                hov_speed_list.append(speed)
+                hov_speed_list.append(hov_speed)
                 gpv_speed_list.append(gpv_speed)
 
         return hov_speed_list, gpv_speed_list
 
-    @staticmethod
-    def fn_compute_emission(data):
+
+    def fn_compute_emission(self, data):
         """
         This function calculates the carbon monoxide emissions (in grams) for both
         HOV & general purpose vehicle for a 20 mile stretch. This value is calculated
@@ -218,8 +233,8 @@ class Lanes:
         :return: Tuple of lists with total emissions on HOV lane and gen.purpose lanes
         """
 
-        hov_pol_emiss_list = []
-        gpv_pol_emiss_list = []
+        hov_pol_emiss_list = self.hov_pol_emiss_list
+        gpv_pol_emiss_list = self.gpv_pol_emiss_list
 
         # emissions in a general purpose lane
         for index, row in data.iterrows():
@@ -276,7 +291,7 @@ def fn_camera_functional(p, data):
     # plt.hist(df['camera_functional'], density=False)
     # plt.title('Distribution of Camera Functionality')
 
-    data['actual_fine'] = np.where(data['camera_functional'] == 'Yes', (0.8 * (data['sov'] - data['reg_fuel_eff']) * 450 * 4),
+    data['actual_fine'] = np.where(data['camera_functional'] == 'Yes', (choice([0.8, 1]) * (data['sov'] - data['reg_fuel_eff']) * 450 * 4),
                                  0)
     return data
 
@@ -312,7 +327,7 @@ if __name__ == '__main__':
         print(e)
 
     df = pd.DataFrame(columns=['peak_hour', 'hov', 'sov', 'gpv', 'fuel_efficient_sov', 'reg_fuel_eff',
-                               'camera_functional', 'weather', 'weather_int', 'accident', 'no_of_accidents', 'accident_fine',
+                               'camera_functional', 'weather', 'weather_int', 'accident', 'no_of_accidents',
                                'hov_speed (mph)', 'gpv_speed (mph)', 'hov_time', 'gpv_time', 'hov_emis', 'gpv_emis', 'estimate_fine',
                                'actual_fine', 'revenue_lost_per_day'])
 
@@ -323,7 +338,6 @@ if __name__ == '__main__':
 
     no_of_accidents_list = my_lane.fn_num_accidents(no_of_samples, df)
     df['no_of_accidents'] = pd.DataFrame(no_of_accidents_list)
-    df['accident_fine'] = df['no_of_accidents'] * 100
 
     hov_list, sov_list, fuel_eff_list, fuel_eff_reg_list, gpv_list = my_lane.fn_vehicles(no_of_samples, df)
     df['hov'] = pd.DataFrame(hov_list)
