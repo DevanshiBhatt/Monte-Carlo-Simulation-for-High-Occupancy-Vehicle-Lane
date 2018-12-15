@@ -1,6 +1,6 @@
 # 590PR Final_Project
 
-# Title: Simulations for the fines paid by Single Occupancy Vehicles on a High Occupany Vehicle Lane 
+# Title: Monte Carlo Simulation for High Occupany Vehicle (HOV) Lane 
 
 ## Team Member(s): Aditya Kadrekar | Ankita Pant | Devanshi Bhatt
 
@@ -81,6 +81,7 @@ Important management decisions could be made out of the following findings of th
 2. HOV lanes take almost half of the time of a GPV lane thus benefitting people in reducing their travel time and encouraging car pooling in the process. It takes 0.27 hrs on an average for a HOV in comparison to 0.46 hrs for a GPV to cover the same distance.
 3. Yes, there is advantage in using the HOV lane over GPV lane when it comes to emission of carbon monoxide. It's observed that HOV emit 135.29 grams of carbon monoxide per vehicle over a 20 mile stretch as they maintain a high average speed in comparison to general purpose vehicle who emit 184.81 grams in the same stretch. It's way over the acceptable limit and thus the state should encourage the use of HOV lanes.
 
+### Thus, all our hypotheses are true.
 
 ## Instructions on how to use the program:
 1. Make sure you are using Python 3.6 and above.
