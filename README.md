@@ -76,7 +76,7 @@ This is a basic summary of what we plan to analyze through our findings:
 2. Are HOV lanes really benefitting people in reducing their travel time in comparison to a general purpose lane? 
 3. Is there an advantage of using the HOV lane in terms of pollution over GPV lane? 
 
-Important management decisions that could be made out of the findings of the simulation:
+Important management decisions could be made out of the following findings of the simulation:
 1. The average loss, in revenue, incured by the state because of the fiel-efficient or hybrid vehicles that are registered to travel on the HOV lane is $86133.24.
 2. HOV lanes take almost half of the time of a GPV lane thus benefitting people in reducing their travel time and encouraging car pooling in the process. It takes 0.27 hrs on an average for a HOV in comparison to 0.46 hrs for a GPV to cover the same distance.
 3. Yes, there is advantage in using the HOV lane over GPV lane when it comes to emission of carbon monoxide. It's observed that HOV emit 135.29 grams of carbon monoxide per vehicle over a 20 mile stretch as they maintain a high average speed in comparison to general purpose vehicle who emit 184.81 grams in the same stretch. It's way over the acceptable limit and thus the state should encourage the use of HOV lanes.
@@ -85,7 +85,7 @@ Important management decisions that could be made out of the findings of the sim
 ## Instructions on how to use the program:
 1. Make sure you are using Python 3.6 and above.
 2. Download and run the python file (hov.py)
-3. There will be a prompt to enter the number of samples you want to use for performing the simualation. 
+3. There will be a prompt to enter the number of simulations you want to perform. 
 
 ## All Sources Used:
 http://people.eecs.berkeley.edu/~varaiya/papers_ps.dir/accessF05v2.pdf
