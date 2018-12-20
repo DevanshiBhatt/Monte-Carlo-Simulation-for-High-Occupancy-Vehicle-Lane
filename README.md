@@ -97,3 +97,9 @@ https://www.tn.gov/tdot/high-occupancy-vehicle--hov--lane.html
 https://www.latimes.com/local/california/la-me-ln-clean-air-car-decals-20180917-story.html
 https://www.wklaw.com/consequences-of-driving-alone-in-the-carpool-or-hov-lane/
 https://www.accessmagazine.org/spring-1995/are-hov-lanes-really-better/
+
+## Work Distribution:
+Coding for the Monte Carlo Simulation was done by Aditya Kadrekar and Devanshi Bhatt and reviewed/edited by Ankita Pant.  
+Visualizations, Comments, Docstrings, Doctests and PPT were done by Ankita.
+Visualizations and PPT were reviewed and edited by Aditya.
+Docstrings and Doctests were reviewed and edited by Devanshi.
