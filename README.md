@@ -1,6 +1,6 @@
 # 590PR Final_Project
 
-# Title: Monte Carlo Simulation for High Occupany Vehicle (HOV) Lane 
+# Title: Monte Carlo Simulation for High Occupancy Vehicle (HOV) Lane 
 
 ## Team Member(s): Aditya Kadrekar | Ankita Pant | Devanshi Bhatt
 
